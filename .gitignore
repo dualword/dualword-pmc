@@ -1,0 +1,11 @@
+/src/.build/
+/src/dualword-pmc
+/Makefile
+/src/Makefile
+/tr/*.qm
+
+#eclipse
+/.cproject
+/.project
+/.externalToolBuilders
+/.settings
