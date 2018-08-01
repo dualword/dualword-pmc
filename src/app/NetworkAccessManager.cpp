@@ -15,7 +15,6 @@
 */
 
 #include "NetworkAccessManager.h"
-#include <QCoreApplication>
 
 NetworkCookieJar::NetworkCookieJar(QObject *p) : QNetworkCookieJar(p) {
 
@@ -29,7 +28,7 @@ int NetworkCookieJar::count() {
 	return allCookies().size();
 }
 
-NetworkAccessManager::NetworkAccessManager(QObject *p) : QNetworkAccessManager(p){
+NetworkAccessManager::NetworkAccessManager(QObject *p) : QNetworkAccessManager(p) {
 	setCookieJar(new NetworkCookieJar(this));
 }
 

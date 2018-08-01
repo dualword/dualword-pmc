@@ -14,15 +14,33 @@
  *
 */
 
-#include "Form.h"
-#include "app/global.h"
+#ifndef FORMDBCONNECTION_H_
+#define FORMDBCONNECTION_H_
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+#include <QtSql>
 
-}
+class Doc;
+struct doc;
 
-Form::~Form() {
+class FormDbConnection : public QObject{
+	Q_OBJECT
 
-}
+public:
+	FormDbConnection(QObject *p = 0);
+	virtual ~FormDbConnection();
+	void open();
+	QSqlDatabase connection() {return db;};
+	void saveDoc(const Doc &d);
+	void getDoc(Doc &d, const QString& id);
+	bool getNextDoc(Doc &d);
+	void deleteDoc(const QString&);
+	void updateDoc(const QString&);
+	bool exists(const QString&);
 
+private:
+	QSqlDatabase db;
+	QString name;
 
+};
+
+#endif /* FORMDBCONNECTION_H_ */

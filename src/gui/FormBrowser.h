@@ -21,7 +21,6 @@
 
 class Browser;
 
-
 class FormBrowser : public Form {
 	Q_OBJECT
 

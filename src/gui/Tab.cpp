@@ -14,11 +14,12 @@
  *
 */
 
-#include "app/DualwordPmcApp.h"
-#include "gui/MainWindow.h"
+#include "app/global.h"
 #include "Tab.h"
 #include "Form.h"
 #include "FormBrowser.h"
+#include "FormTable.h"
+#include "FormViewer.h"
 #include "Browser.h"
 
 Tab::Tab(QWidget *p) : QTabWidget(p) {
@@ -30,6 +31,7 @@ Tab::Tab(QWidget *p) : QTabWidget(p) {
     connect(this, SIGNAL(currentChanged (int)), SLOT(currentChanged(int)));
     connect(this, SIGNAL(tabCloseRequested (int)), SLOT(closeTab(int)));
     connect(this, SIGNAL(NewBrowser()), SLOT(createBrowser()));
+    connect(this, SIGNAL(NewTable()), this, SLOT(createTable()));
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
     		SLOT(contextMenuRequested(QPoint)));
 }
@@ -41,6 +43,7 @@ Tab::~Tab() {
 void Tab::contextMenuRequested(const QPoint &position) {
 	QMenu menu;
     menu.addAction(tr("Browser Tab"), this, SIGNAL(NewBrowser()));
+    menu.addAction(tr("Table"), this, SIGNAL(NewTable()));
     menu.exec(QCursor::pos());
 }
 
@@ -57,23 +60,37 @@ int Tab::createBrowser(const QUrl& url){
 	return addTab(f,"Browser");
 }
 
+void Tab::createTable(){
+	auto f = new FormTable(this);
+	f->init();
+    QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
+	addTab(f,"Table");
+}
+
+void Tab::createViewer(const QString& i){
+	auto f = new FormViewer(this);
+	f->init();
+	f->loadDoc(i);
+	setCurrentIndex(addTab(f,f->getName()));
+}
+
 void Tab::closeTab(int i){
-	if(this->count() == 1) createBrowser();
+	if(this->count() == 1) createTable();
+	widget(i)->deleteLater();
 	removeTab(i);
 }
 
 void Tab::currentChanged (int index){
 	auto f = qobject_cast<Form*>(currentWidget());
     QObject::connect(f,SIGNAL(statusBarMessage(const QString&)),
-    		DualwordPmcApp::instance()->window()->statusBar(),
-			SLOT(showMessage(const QString&)), Qt::UniqueConnection);
+    		mainWin->statusBar(), SLOT(showMessage(const QString&)), Qt::UniqueConnection);
 }
 
 void Tab::setToolTip(const QString& s){
 	auto f = qobject_cast<Form*>(sender());
 	int i = indexOf(f);
 	if (i != -1) {
-		setTabText(i, f->getTitle());
-		setTabToolTip(i, f->getTitle());
+		setTabText(i, s.mid(0,20));
+		setTabToolTip(i, s);
 	}
 }

@@ -17,6 +17,8 @@
 #include "FormBrowser.h"
 #include "Browser.h"
 
+#include <QtGui>
+
 FormBrowser::FormBrowser(QWidget *p) : Form(p), browser(new Browser(this)) {
 	QVBoxLayout *box = new QVBoxLayout(this);
 	box->addWidget(browser);
@@ -24,10 +26,10 @@ FormBrowser::FormBrowser(QWidget *p) : Form(p), browser(new Browser(this)) {
 
     QObject::connect(browser,SIGNAL(titleChanged(const QString&)),
     		SIGNAL(titleChanged(const QString&)));
-    QObject::connect(browser->page(), SIGNAL(linkHovered(const QString&, const QString&, const QString&)),
-    		SIGNAL(statusBarMessage(const QString&)));
+    QObject::connect(browser->page(), SIGNAL(linkHovered(const QString&, const QString&,
+    		const QString&)), SIGNAL(statusBarMessage(const QString&)));
 
-	browser->load(QUrl("http://www.ncbi.nlm.nih.gov/pmc/"));
+    browser->setUrl(QUrl("http://www.ncbi.nlm.nih.gov/pmc/"));
 
 }
 

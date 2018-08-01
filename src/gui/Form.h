@@ -19,6 +19,8 @@
 
 #include <QtGui>
 
+class Index;
+
 class Form : public QWidget {
      Q_OBJECT
 
@@ -31,7 +33,11 @@ signals:
 	void titleChanged (const QString&);
 	void statusBarMessage (const QString&);
 
+protected:
+	Index* idx;
 
 };
+
+
 
 #endif /* GUI_FORM_H_ */

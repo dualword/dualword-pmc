@@ -14,43 +14,49 @@
  *
 */
 
-#ifndef BROWSER_H_
-#define BROWSER_H_
+#ifndef FORMTABLE_H_
+#define FORMTABLE_H_
 
-#include <QtWebKit/QtWebKit>
+#include "Form.h"
 
-class WebPage : public QWebPage{
-	Q_OBJECT
+class FormDbConnection;
+class IndexModel;
+class FormViewer;
+class TableView;
 
-public:
-	WebPage(QObject *p = 0);
-	virtual ~WebPage();
-
-protected:
-    bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
-
-};
-
-class Browser : public QWebView {
-	Q_OBJECT
+class FormTable  : public Form {
+  Q_OBJECT
 
 public:
-	Browser(QWidget *p = 0);
-	virtual ~Browser();
+	FormTable(QWidget *p = 0);
+	virtual ~FormTable();
+	virtual QString getTitle() const;
+	void init();
 
 public slots:
-	void findTxt();
-	void loadFinished (bool ok);
+	void contextMenuRequested(QPoint);
 
-protected slots:
-    virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual	bool isValidUrl(const QUrl&);
-	void openLink();
+signals:
 
 protected:
-	QString searchString;
+	void showEvent(QShowEvent *e);
+	void hideEvent(QHideEvent *e);
+
+private slots:
+	void createUi();
+	void connectSlots();
+	void deleteDoc();
+	void openDoc();
+	void doSearch();
+
+private:
+	TableView *table;
+	QLineEdit *search, *count;
+	FormDbConnection *db;
+	QMenu*   menu;
+	QAction *m_del, *m_a;
+	FormViewer* view;
 
 };
 
-
-#endif /* BROWSER_H_ */
+#endif /* FORMTABLE_H_ */

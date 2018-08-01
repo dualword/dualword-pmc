@@ -14,15 +14,37 @@
  *
 */
 
-#include "Form.h"
-#include "app/global.h"
+#ifndef GUI_TABLEVIEW_H_
+#define GUI_TABLEVIEW_H_
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+#include <QTableView>
 
-}
+class IndexModel;
 
-Form::~Form() {
+class TableView : public QTableView {
+	Q_OBJECT
 
-}
+public:
+	TableView(QWidget * p = 0);
+	virtual ~TableView();
+	int count();
+	void refresh();
 
+public slots:
+	void doubleClicked(QModelIndex index);
+	void setQuery(const QString&);
 
+signals:
+	void doubleClicked(const QString&);
+	void clicked(const QString&);
+
+protected:
+	void currentChanged (const QModelIndex&, const QModelIndex& );
+
+private:
+	IndexModel *idxmodel;
+	int row;
+
+};
+
+#endif /* GUI_TABLEVIEW_H_ */

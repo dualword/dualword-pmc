@@ -14,15 +14,22 @@
  *
 */
 
-#include "Form.h"
-#include "app/global.h"
+#ifndef APP_INDEXER_H_
+#define APP_INDEXER_H_
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+#include <QThread>
+#include <QDebug>
 
-}
+class Indexer : public QThread{
+	Q_OBJECT
 
-Form::~Form() {
+public:
+	Indexer(QObject *p = 0);
+	virtual ~Indexer();
 
-}
+protected:
+     void run();
 
+};
 
+#endif /* APP_INDEXER_H_ */

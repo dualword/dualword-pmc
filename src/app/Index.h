@@ -14,15 +14,36 @@
  *
 */
 
-#include "Form.h"
-#include "app/global.h"
+#ifndef APP_INDEX_H_
+#define APP_INDEX_H_
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+#include <xapian.h>
 
-}
+#include <QObject>
+#include <QDebug>
+#include <QVector>
+#include <QDateTime>
+#include <QString>
+#include <QDir>
+#include <QTimer>
+#include <QSet>
 
-Form::~Form() {
+class Doc;
 
-}
+class Index : public QObject{
+  Q_OBJECT
 
+public:
+	Index(QObject *p = 0);
+	virtual ~Index();
+	void init();
+	void save(Doc&);
+	void deleteDoc(Doc&);
+	void deleteDoc(const QString&);
 
+private:
+	QScopedPointer<Xapian::WritableDatabase> db;
+
+};
+
+#endif /* APP_INDEX_H_ */

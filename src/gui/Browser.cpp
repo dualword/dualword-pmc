@@ -15,15 +15,11 @@
 */
 
 #include "Browser.h"
-#include "app/DualwordPmcApp.h"
-#include "MainWindow.h"
+#include "app/global.h"
 #include "app/NetworkAccessManager.h"
+#include "gui/GetPdf.h"
 
-#include <QInputDialog>
-#include <QLineEdit>
-#include <QShortcut>
-#include <QMenu>
-#include <QClipboard>
+#include <QtGui>
 
 WebPage::WebPage(QObject *p) : QWebPage(p){
 	setNetworkAccessManager(new NetworkAccessManager(this));
@@ -41,9 +37,10 @@ WebPage::~WebPage() {
 
 }
 
-Browser::Browser(QWidget *p) : QWebView(p), searchString(""), id(id){
+Browser::Browser(QWidget *p) : QWebView(p), searchString(""){
 	setPage(new WebPage(this));
 	new QShortcut(QKeySequence::Find, this, SLOT(findTxt()), nullptr, Qt::WidgetWithChildrenShortcut);
+    QObject::connect(page(), SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 }
 
 Browser::~Browser() {
@@ -78,13 +75,26 @@ void Browser::contextMenuEvent(QContextMenuEvent *event){
 
 void Browser::openLink(){
 	auto a = qobject_cast<QAction*>(sender());
-    DualwordPmcApp::instance()->window()->getTab()->createBrowser(a->data().toUrl());
+	mainWin->getTab()->createBrowser(a->data().toUrl());
 }
 
 bool Browser::isValidUrl(const QUrl& url){
-	if(url.host().toLower().contains("ncbi.nlm.nih.gov")) {
-		return true;
-	}
-	return false;
+	return url.host().contains("ncbi.nlm.nih.gov",Qt::CaseInsensitive);
 }
 
+void Browser::loadFinished (bool ok){
+	if(!ok){
+		setHtml((pmcApp->getHtml(":/error.html")).arg("").arg(url().toString()));
+		emit titleChanged("Error");
+		return;
+	}
+
+	if(url().toString().contains("ncbi.nlm.nih.gov/pmc/articles",Qt::CaseInsensitive)){
+		QWebFrame *frame = page()->mainFrame();
+		if(!frame) return;
+		QWebElement doc = frame->documentElement();
+		if(doc.isNull()) return;
+		QString link = doc.findFirst("link[rel=\"alternate\"][type=\"application/pdf\"]").attribute("href");
+		if(link.length()>0) pmcApp->startTask<DownloadTask>("https://www.ncbi.nlm.nih.gov"+link);
+	}
+}

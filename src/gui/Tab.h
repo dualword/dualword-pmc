@@ -34,12 +34,14 @@ public:
 
 signals:
 	void NewBrowser();
-	void NewDualBrowser();
+	void NewTable();
 	void currentForm(Form*);
 
 public slots:
 	int createBrowser();
 	int createBrowser(const QUrl&);
+	void createTable();
+	void createViewer(const QString& i);
 	void closeTab(int);
 	void currentChanged (int index);
 	void setToolTip(const QString&);

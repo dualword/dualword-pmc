@@ -14,11 +14,19 @@
  *
 */
 
+#include "app/Index.h"
+#include "app/Indexer.h"
 #include <QFile>
-#include "DualwordPmcApp.h"
-#include "gui/MainWindow.h"
+#include "app/global.h"
 
-DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv) {
+const QString DualwordPmcApp::appPath = QDir::homePath().append(QDir::separator()).append(".dualword-pmc")
+.append(QDir::separator());
+
+const QString DualwordPmcApp::dbPath = appPath + "dualword-pmc.sqlite";
+
+const QString DualwordPmcApp::idxPath = appPath + "index";
+
+DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv), indexer(0), idx(0), lock() {
 	setApplicationName("Dualword-pmc");
 	#ifdef _VER
 		QApplication::setApplicationVersion(_VER);
@@ -44,8 +52,29 @@ QString DualwordPmcApp::getHtml(const QString& f){
 }
 
 void DualwordPmcApp::start() {
-	win = new MainWindow();
-	win->init();
-	win->show();
+	createIndex();
+	createDb();
+	w = new MainWindow();
+	w->init();
+	w->show();
+	startIndexer();
+}
+
+void DualwordPmcApp::startIndexer(){
+	QMutexLocker locker(&lock);
+	if(indexer && indexer->isRunning()) return;
+	indexer.reset(new Indexer(this));
+	indexer->start(QThread::LowestPriority);
+
+}
+
+void DualwordPmcApp::createDb(){
+
+}
+
+void DualwordPmcApp::createIndex(){
+	QDir().mkpath(idxPath);
+	idx.reset(new Index(this));
+	idx->init();
 }
 

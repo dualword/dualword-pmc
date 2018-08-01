@@ -18,24 +18,59 @@
 #define APP_DUALWORDPMCAPP_H_
 
 #include <QApplication>
+#include <QMutex>
+#include <QThreadPool>
 
 class MainWindow;
+class Indexer;
+class Index;
 
 class DualwordPmcApp : public QApplication {
     Q_OBJECT
 
 public:
+	DualwordPmcApp() = delete;
+	DualwordPmcApp(const DualwordPmcApp&) = delete;
+	DualwordPmcApp& operator=(const DualwordPmcApp&) = delete;
 	DualwordPmcApp(int &argc, char **argv);
 	virtual ~DualwordPmcApp();
-	MainWindow* window() {return win;};
+	MainWindow* window() {return w;};
+	Index* index() {return idx.data();};
     static DualwordPmcApp *instance();
     static QString getHtml(const QString&);
 
+    template <typename T, typename P>
+    void startTask(P p) {
+    	QThreadPool::globalInstance()->start(new T(p));
+    };
+
+	const QString& pathApp() const {
+		return appPath;
+	}
+
+	const QString& pathIdx() const {
+		return idxPath;
+	}
+
+	const QString& pathDb() const {
+		return dbPath;
+	}
+
 public slots:
 	void start();
+	void startIndexer();
 
 private:
-	MainWindow* win;
+	void createDb();
+	void createIndex();
+
+private:
+	static const QString appPath, dbPath, idxPath;
+
+	MainWindow* w;
+	QScopedPointer<Indexer> indexer;
+	QScopedPointer<Index> idx;
+    QMutex lock;
 };
 
 #endif /* APP_DUALWORDPMCAPP_H_ */

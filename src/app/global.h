@@ -14,15 +14,31 @@
  *
 */
 
-#include "Form.h"
-#include "app/global.h"
+#ifndef GLOBAL_H_
+#define GLOBAL_H_
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+#include "app/DualwordPmcApp.h"
+#include "gui/MainWindow.h"
 
-}
+#if defined(pmcApp)
+#undef pmcApp
+#endif
+#define pmcApp (DualwordPmcApp::instance())
 
-Form::~Form() {
+#if defined(mainWin)
+#undef mainWin
+#endif
+#define mainWin (DualwordPmcApp::instance()->window())
 
-}
+#include <iostream>
+#include <cstdlib>
+#include <stdexcept>
+#include <exception>
+#include <string>
 
+class dualword_exception: public std::runtime_error {
+public:
+	dualword_exception(const std::string& arg) : runtime_error(arg) {}
+};
 
+#endif /* GLOBAL_H_ */

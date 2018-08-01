@@ -28,7 +28,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::init(){
-	tab->createBrowser();
+	tab->createTable();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

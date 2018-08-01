@@ -14,15 +14,42 @@
  *
 */
 
+#ifndef FORMVIEWER_H_
+#define FORMVIEWER_H_
+
 #include "Form.h"
-#include "app/global.h"
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+class Doc;
+class FormDbConnection;
 
-}
+class FormViewer : public Form {
+  Q_OBJECT
 
-Form::~Form() {
+public:
+	FormViewer(QWidget *p = 0);
+	virtual ~FormViewer();
+	virtual QString getTitle() const;
+	void init();
+	const QString& getName() const {
+		return name;
+	}
 
-}
+public slots:
+	void setImage(const QImage*);
+	void loadDoc(const QString& i);
 
+private:
+	void createUi();
+	void connectSlots();
 
+	QPushButton *btnBack;
+	QLabel *lbl, *page;
+	QScrollArea *scroll;
+	QScopedPointer<Doc> pdf;
+	FormDbConnection *db;
+	QSpinBox *slideZ, *slideP;
+	QString name;
+
+};
+
+#endif /* FORMVIEWER_H_ */

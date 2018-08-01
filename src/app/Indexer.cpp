@@ -14,15 +14,33 @@
  *
 */
 
-#include "Form.h"
-#include "app/global.h"
+#include "Index.h"
+#include "Indexer.h"
+#include "app/FormDbConnection.h"
+#include "app/Doc.h"
 
-Form::Form(QWidget *p) : QWidget(p), idx(pmcApp->index()){
+#include "global.h"
+
+Indexer::Indexer(QObject *p) : QThread(p){
 
 }
 
-Form::~Form() {
+Indexer::~Indexer() {
 
 }
 
-
+void Indexer::run(){
+	FormDbConnection db;
+	try {
+		db.open();
+		while(true){
+			QScopedPointer<Doc> doc(new Doc());
+			if (!db.getNextDoc(*doc.data())) break;
+			pmcApp->index()->save(*doc.data());
+			db.updateDoc(doc->getPmcid());
+			QThread::sleep(1);
+		}
+	} catch(const dualword_exception& e) {
+		//
+	}
+}
