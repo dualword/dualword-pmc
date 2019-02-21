@@ -40,13 +40,8 @@ void FormTable::createUi(){
 	view->init();
 
 	table = new TableView(this);
-	connect(table,SIGNAL(customContextMenuRequested(const QPoint)),
-			this,SLOT(contextMenuRequested(QPoint)));
-
-	menu = new QMenu(table);
-	m_del = menu->addAction("Delete");
-	connect(m_del,SIGNAL(triggered()), SLOT(deleteDoc()));
-	QAction *a = menu->addAction(tr("Open in browser"), this, SLOT(openDoc()));
+	connect(table,SIGNAL(customContextMenuRequested(const QPoint&)),
+			SLOT(contextMenuRequested(const QPoint&)));
 
 	QHBoxLayout *bl = new QHBoxLayout;
 	search = new QLineEdit(this);
@@ -75,8 +70,11 @@ void FormTable::connectSlots(){
 	connect(table,SIGNAL(clicked(const QString&)), view, SLOT(loadDoc(const QString&)));
 }
 
-void FormTable::contextMenuRequested(QPoint p){
-	menu->popup(mapToGlobal(p));
+void FormTable::contextMenuRequested(const QPoint& p){
+	QMenu menu(this);
+	menu.addAction(tr("Delete"), this, SLOT(deleteDoc()));
+	menu.addAction(tr("Open in browser"), this, SLOT(openDoc()));
+	menu.exec(QCursor::pos());
 }
 
 void FormTable::deleteDoc(){
@@ -100,8 +98,7 @@ QString FormTable::getTitle() const{
 }
 
 void FormTable::showEvent(QShowEvent *e){
-	table->refresh();
-	count->setText(QString::number(table->count()));
+	refresh();
 	QWidget::showEvent(e);
 }
 
@@ -113,4 +110,9 @@ void FormTable::doSearch(){
 	table->setQuery(search->text().trimmed());
 	count->setText(QString::number(table->count()));
 	emit titleChanged(search->text().length()>0 ? search->text() : "Table");
+}
+
+void FormTable::refresh(){
+	table->refresh();
+	count->setText(QString::number(table->count()));
 }

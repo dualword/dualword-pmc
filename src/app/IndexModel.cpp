@@ -19,7 +19,7 @@
 
 IndexModel::IndexModel (QObject *p) : QAbstractTableModel(p),
 	db(), set(), query(""), list() {
-	list << "pmcid" << "name" << "page";
+	list << "pmcid" << "name" << "page" << "image" << "size";
 	init();
 	setQuery("");
 }
@@ -41,11 +41,15 @@ void IndexModel::init(){
 	}
 }
 
-QVariant IndexModel::data ( const QModelIndex& index, int role ) const {
+QVariant IndexModel::data (const QModelIndex& index, int role) const {
 	if (!index.isValid()) return QVariant();
 	if (role == Qt::DisplayRole) {
-		Xapian::Document doc = set[index.row()].get_document();
-		return QString::fromStdString(doc.get_value(index.column()));
+		try {
+			Xapian::Document doc = set[index.row()].get_document();
+			return QString::fromStdString(doc.get_value(index.column()));
+		} catch (const Xapian::Error& e) {
+			//
+		}
 	}
 	return QVariant();
 }
@@ -83,7 +87,7 @@ void IndexModel::setQuery(const QString& query) {
 		enquire.set_query(q);
 		set = enquire.get_mset(0, db.get_doccount());
 		reset();
-	}catch (...) {
+	} catch (const Xapian::Error& e) {
 		//
 	}
 

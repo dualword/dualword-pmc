@@ -46,6 +46,7 @@ void TableView::doubleClicked(QModelIndex index) {
 void TableView::currentChanged ( const QModelIndex & current, const QModelIndex & previous ) {
 	row = current.row();
 	emit clicked((model()->sibling(current.row(),0,current)).data().toString());
+	QAbstractItemView::currentChanged(current, previous);
 }
 
 void TableView::refresh(){

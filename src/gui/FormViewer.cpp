@@ -66,6 +66,8 @@ void FormViewer::createUi(){
 	bl->addWidget(slideP);
 	bl->addWidget(page);
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setSpacing(0);
+	layout->setContentsMargins(0,0,0,0);
 	layout->addWidget(scroll);
 	layout->addLayout(bl);
     setLayout(layout);
@@ -83,17 +85,21 @@ void FormViewer::setImage(const QImage* image){
 
 void FormViewer::loadDoc(const QString& i){
 	pdf.reset(new Doc());
-	db->getDoc(*pdf.data(),i);
-	name = pdf->getName();
-	connect(pdf.data(), SIGNAL(newImage(const QImage*)), this, SLOT(setImage(const QImage*)));
-	pdf->setZoom(150);
-	connect(slideZ, SIGNAL(valueChanged(int)), pdf.data(), SLOT(setZoom(int)));
-	slideP->setMinimum(1);
-	slideP->setMaximum(pdf->getPageCount());
-	slideP->setValue(1);
-	slideP->setSingleStep(1);
-	connect(slideP, SIGNAL(valueChanged(int)), pdf.data(), SLOT(loadPage(int)));
-	page->setText("/"+QString::number(pdf->getPageCount()));
+	try {
+		db->getDoc(*pdf.data(),i);
+		name = pdf->getName();
+		connect(pdf.data(), SIGNAL(newImage(const QImage*)), this, SLOT(setImage(const QImage*)));
+		connect(slideZ, SIGNAL(valueChanged(int)), pdf.data(), SLOT(setZoom(int)));
+		pdf->setZoom(slideZ->value());
+		slideP->setMinimum(1);
+		slideP->setMaximum(pdf->getPageCount());
+		slideP->setValue(1);
+		slideP->setSingleStep(1);
+		connect(slideP, SIGNAL(valueChanged(int)), pdf.data(), SLOT(loadPage(int)));
+		page->setText("/"+QString::number(pdf->getPageCount()));
+	} catch (const dualword_exception& e) {
+		//
+	}
 }
 
 QString FormViewer::getTitle() const{

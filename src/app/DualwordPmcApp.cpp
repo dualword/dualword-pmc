@@ -64,6 +64,7 @@ void DualwordPmcApp::startIndexer(){
 	QMutexLocker locker(&lock);
 	if(indexer && indexer->isRunning()) return;
 	indexer.reset(new Indexer(this));
+	QObject::connect(indexer.data(), SIGNAL(newMsg(const QString&)), mainWin->statusBar(), SLOT(showMessage(const QString&)));
 	indexer->start(QThread::LowestPriority);
 
 }

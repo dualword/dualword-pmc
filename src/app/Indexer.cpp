@@ -35,11 +35,14 @@ void Indexer::run(){
 		db.open();
 		while(true){
 			QScopedPointer<Doc> doc(new Doc());
+			QObject::connect(doc.data(), SIGNAL(newDoc()), mainWin->getTab(), SLOT(indexChange()), Qt::QueuedConnection);
 			if (!db.getNextDoc(*doc.data())) break;
+			emit newMsg("Indexing " + doc->getPmcid());
 			pmcApp->index()->save(*doc.data());
 			db.updateDoc(doc->getPmcid());
-			QThread::sleep(1);
+			doc->emitNewDoc();
 		}
+		emit newMsg("");
 	} catch(const dualword_exception& e) {
 		//
 	}

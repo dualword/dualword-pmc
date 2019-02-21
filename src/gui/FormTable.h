@@ -34,7 +34,9 @@ public:
 	void init();
 
 public slots:
-	void contextMenuRequested(QPoint);
+	void contextMenuRequested(const QPoint&);
+	void refresh();
+
 
 signals:
 
@@ -53,8 +55,6 @@ private:
 	TableView *table;
 	QLineEdit *search, *count;
 	FormDbConnection *db;
-	QMenu*   menu;
-	QAction *m_del, *m_a;
 	FormViewer* view;
 
 };

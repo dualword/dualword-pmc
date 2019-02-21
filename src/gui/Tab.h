@@ -45,6 +45,7 @@ public slots:
 	void closeTab(int);
 	void currentChanged (int index);
 	void setToolTip(const QString&);
+	void indexChange();
 
 private slots:
     void contextMenuRequested(const QPoint &position);

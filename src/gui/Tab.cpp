@@ -94,3 +94,9 @@ void Tab::setToolTip(const QString& s){
 		setTabToolTip(i, s);
 	}
 }
+
+void Tab::indexChange(){
+	auto f = qobject_cast<Form*>(currentWidget());
+	if(qobject_cast<FormTable*>(f)) (qobject_cast<FormTable*>(f))->refresh();
+}
+

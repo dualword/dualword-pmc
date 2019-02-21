@@ -27,6 +27,9 @@ public:
 	Indexer(QObject *p = 0);
 	virtual ~Indexer();
 
+signals:
+	void newMsg(const QString&);
+
 protected:
      void run();
 

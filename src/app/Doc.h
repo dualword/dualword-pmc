@@ -34,14 +34,24 @@ public:
 	void open();
 	void toText(QString &);
 
+signals:
+	void newImage(const QImage*);
+	void newDoc();
+
 public slots:
 	void loadPage(int);
+
 	void setZoom(int z) {
 		zoom = z;
 		loadPage(++pageNum);
 	}
+
 	int getPageCount() const {
 		return pageCount;
+	}
+
+	int getImageCount() const {
+		return imageCount;
 	}
 
 	const QByteArray& getData() const {
@@ -76,15 +86,15 @@ public slots:
 		this->size = size;
 	}
 
-Q_SIGNALS:
-	void newImage(const QImage*);
+	void emitNewDoc() { emit newDoc(); }
 
 private:
 	Q_DISABLE_COPY(Doc)
+	void saveImage();
 
 	fz_context *ctx;
 	fz_document *doc;
-	int zoom,pageNum,pageCount;
+	int zoom, pageNum, pageCount, imageCount;
 	int size;
 	QString name;
 	QString pmcid;
@@ -93,7 +103,7 @@ private:
 };
 
 inline QDebug operator<<(QDebug dbg, const Doc *doc){
-	dbg.nospace() << "Doc: pages:" << doc->getPageCount() ;
+	dbg.nospace() << "Doc: pages:" << doc->getPageCount() << " images:" << doc->getImageCount();
     return dbg.maybeSpace();
 }
 

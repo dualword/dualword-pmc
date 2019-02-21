@@ -80,7 +80,8 @@ void FormDbConnection::saveDoc(const Doc &doc){
 }
 
 void FormDbConnection::getDoc(Doc &d, const QString& id){
-	QSqlQuery query("SELECT pmcid, name,size,data FROM doc where pmcid = :id" ,db);
+	QSqlQuery query(db);
+	query.prepare("SELECT pmcid, name,size,data FROM doc where pmcid = :id" );
 	query.bindValue(":id", id);
 
 	if(!query.exec()){
@@ -127,7 +128,8 @@ void FormDbConnection::deleteDoc(const QString& id){
 
 	try {
 		db.transaction();
-		QSqlQuery q("DELETE FROM doc where pmcid = :id",db);
+		QSqlQuery q(db);
+		q.prepare("DELETE FROM doc where pmcid = :id");
 		q.bindValue(":id", id);
 
 		if(!q.exec()){
@@ -144,7 +146,8 @@ void FormDbConnection::deleteDoc(const QString& id){
 void FormDbConnection::updateDoc(const QString& id){
 	try {
 		db.transaction();
-		QSqlQuery q("UPDATE doc set updated=CURRENT_TIMESTAMP where pmcid = :id",db);
+		QSqlQuery q(db);
+		q.prepare("UPDATE doc set updated=CURRENT_TIMESTAMP where pmcid = :id");
 		q.bindValue(":id", id);
 
 		if(!q.exec()){

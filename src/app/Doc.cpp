@@ -17,7 +17,8 @@
 #include "Doc.h"
 #include "global.h"
 
-Doc::Doc(QObject *p) : QObject(p), ctx(nullptr),doc(nullptr),zoom(150),pageNum(0),pageCount(0) {
+Doc::Doc(QObject *p) : QObject(p), ctx(nullptr), doc(nullptr), zoom(150),
+	pageNum(0),	pageCount(0), imageCount(0) {
 
 }
 
@@ -45,6 +46,8 @@ void Doc::open(){
 	}fz_catch(ctx){
 		//throw dualword_exception("Couldn't open pdf:" + std::string(ctx->error->message));
     }
+
+	saveImage();
 }
 
 void Doc::loadPage(int pi){
@@ -117,3 +120,29 @@ void Doc::toText(QString& s){
 		//char *msg = ctx->error->message;
 	}
 }
+
+void Doc::saveImage(){
+	fz_stream* fs;
+	pdf_document *d;
+
+	ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
+	fz_register_document_handlers(ctx);
+    fz_try(ctx){
+    	fs = fz_open_memory(ctx, (unsigned char *)data.constData(), data.length());
+    	d = pdf_open_document_with_stream(ctx, fs);
+    	int len = pdf_count_objects(ctx, d);
+
+    	for (int i = 1; i < len; i++){
+    		pdf_obj *obj = pdf_load_object(ctx, d, i, 0);
+    		pdf_obj *type = pdf_dict_get(ctx, obj, PDF_NAME_Subtype);
+    		if (pdf_name_eq(ctx, type, PDF_NAME_Image)) imageCount++;
+    		pdf_drop_obj(ctx, obj);
+    	}
+    }fz_always(ctx)	{
+    	pdf_close_document(ctx, d);
+    	fz_drop_stream(ctx, fs);
+	}fz_catch(ctx){
+		//
+    }
+}
+

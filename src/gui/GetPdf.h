@@ -21,6 +21,7 @@
 #include "app/FormDbConnection.h"
 #include "app/global.h"
 #include "app/Doc.h"
+#include "app/NetworkAccessManager.h"
 
 class GetPdf : public QObject{
   Q_OBJECT
@@ -34,8 +35,8 @@ public:
 			db.open();
 			if(db.exists(link)) return;
 			QUrl api = QUrl(link);
-			QNetworkAccessManager *networkMgr = new QNetworkAccessManager(this);
-			QNetworkReply *reply = networkMgr->get( QNetworkRequest(api) );
+			NetworkAccessManager *networkMgr = new NetworkAccessManager(this);
+			QNetworkReply *reply = networkMgr->get(QNetworkRequest(api));
 			QEventLoop loop;
 			QObject::connect(reply,SIGNAL(finished()),&loop,SLOT(quit()));
 			QObject::connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));

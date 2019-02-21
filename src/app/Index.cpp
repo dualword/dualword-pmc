@@ -53,10 +53,11 @@ void Index::save(Doc& d){
 	doc.add_value(0,d.getPmcid().toStdString());
 	doc.add_value(1,d.getName().toStdString());
 	doc.add_value(2,std::to_string(d.getPageCount()));
+	doc.add_value(3,std::to_string(d.getImageCount()));
+	doc.add_value(4,std::to_string(d.getData().size()));
 	indexer.index_text(text.toStdString());
 	db->replace_document("XID" + d.getPmcid().toLower().toStdString(), doc);
 	db->commit();
-
 }
 
 void Index::deleteDoc (Doc& d) {
