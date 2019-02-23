@@ -43,6 +43,7 @@ void FormViewer::createUi(){
     lbl->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     lbl->setScaledContents(true);
     page = new QLabel(this);
+    page->setAlignment(Qt::AlignHCenter);
 	scroll = new QScrollArea(this);
 	scroll->setAlignment(Qt::AlignCenter);
 	scroll->setBackgroundRole(QPalette::Dark);
@@ -60,35 +61,67 @@ void FormViewer::createUi(){
 	slideP->setValue(0);
 	slideP->setSingleStep(0);
 	slideP->setWrapping(true);
-	QHBoxLayout *bl = new QHBoxLayout();
+
+	QVBoxLayout *bl = new QVBoxLayout();
 	bl->addStretch(0);
+	bl->setSpacing(0);
+	bl->setContentsMargins(0,0,0,0);
 	bl->addWidget(slideZ);
 	bl->addWidget(slideP);
 	bl->addWidget(page);
-	QVBoxLayout *layout = new QVBoxLayout();
+
+	list = new QListWidget(this);
+	list->setViewMode(QListWidget::IconMode);
+	list->setIconSize(QSize(250,250));
+	list->setResizeMode(QListWidget::Adjust);
+	list->setFlow(QListView::TopToBottom);
+	list->setWrapping(false);
+
+	QHBoxLayout *layout = new QHBoxLayout();
 	layout->setSpacing(0);
 	layout->setContentsMargins(0,0,0,0);
-	layout->addWidget(scroll);
-	layout->addLayout(bl);
-    setLayout(layout);
+	layout->addWidget(scroll, 1);
+	layout->addLayout(bl, 0);
+
+	QWidget* w = new QWidget(this);
+	w->setLayout(layout);
+
+	QSizePolicy p = w->sizePolicy();
+	p.setHorizontalStretch(1);
+	w->setSizePolicy(p);
+
+	QSplitter* sp = new QSplitter(this);
+	sp->addWidget(list);
+	sp->addWidget(w);
+
+	QVBoxLayout *layout1 = new QVBoxLayout(this);
+	layout1->setSpacing(0);
+	layout1->setContentsMargins(0,0,0,0);
+	layout1->addWidget(sp);
+
+    setLayout(layout1);
 }
 
 void FormViewer::connectSlots(){
 
 }
 
-
-void FormViewer::setImage(const QImage* image){
+void FormViewer::setPage(const QImage* image){
 	lbl->setPixmap(QPixmap::fromImage(*image));
 	lbl->adjustSize();
 }
 
+void FormViewer::setImage(const QImage* image){
+	list->addItem(new QListWidgetItem(QIcon(QPixmap::fromImage(*image)), 0));
+}
+
 void FormViewer::loadDoc(const QString& i){
+	list->clear();
 	pdf.reset(new Doc());
 	try {
 		db->getDoc(*pdf.data(),i);
 		name = pdf->getName();
-		connect(pdf.data(), SIGNAL(newImage(const QImage*)), this, SLOT(setImage(const QImage*)));
+		connect(pdf.data(), SIGNAL(newPage(const QImage*)), this, SLOT(setPage(const QImage*)));
 		connect(slideZ, SIGNAL(valueChanged(int)), pdf.data(), SLOT(setZoom(int)));
 		pdf->setZoom(slideZ->value());
 		slideP->setMinimum(1);
@@ -96,7 +129,9 @@ void FormViewer::loadDoc(const QString& i){
 		slideP->setValue(1);
 		slideP->setSingleStep(1);
 		connect(slideP, SIGNAL(valueChanged(int)), pdf.data(), SLOT(loadPage(int)));
-		page->setText("/"+QString::number(pdf->getPageCount()));
+		page->setText("Pages:"+QString::number(pdf->getPageCount()));
+		connect(pdf.data(), SIGNAL(newImage(const QImage*)), this, SLOT(setImage(const QImage*)));
+		pdf->getImages();
 	} catch (const dualword_exception& e) {
 		//
 	}

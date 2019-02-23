@@ -112,7 +112,6 @@ bool FormDbConnection::getNextDoc(Doc &d){
 			d.setName(query.value(1).toString());
 			d.setSize(query.value(2).toInt());
 			d.setData(query.value(3).toByteArray());
-			d.open();
 		} catch(const dualword_exception& e) {
 			query.finish();
 			return false;

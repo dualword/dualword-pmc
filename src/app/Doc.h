@@ -35,11 +35,13 @@ public:
 	void toText(QString &);
 
 signals:
+	void newPage(const QImage*);
 	void newImage(const QImage*);
 	void newDoc();
 
 public slots:
 	void loadPage(int);
+	void getImages();
 
 	void setZoom(int z) {
 		zoom = z;
@@ -90,7 +92,6 @@ public slots:
 
 private:
 	Q_DISABLE_COPY(Doc)
-	void saveImage();
 
 	fz_context *ctx;
 	fz_document *doc;

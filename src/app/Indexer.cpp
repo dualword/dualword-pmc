@@ -35,9 +35,11 @@ void Indexer::run(){
 		db.open();
 		while(true){
 			QScopedPointer<Doc> doc(new Doc());
-			QObject::connect(doc.data(), SIGNAL(newDoc()), mainWin->getTab(), SLOT(indexChange()), Qt::QueuedConnection);
 			if (!db.getNextDoc(*doc.data())) break;
 			emit newMsg("Indexing " + doc->getPmcid());
+			QObject::connect(doc.data(), SIGNAL(newDoc()), mainWin->getTab(), SLOT(indexChange()), Qt::QueuedConnection);
+			doc->open();
+			doc->getImages();
 			pmcApp->index()->save(*doc.data());
 			db.updateDoc(doc->getPmcid());
 			doc->emitNewDoc();

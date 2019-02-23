@@ -35,6 +35,7 @@ public:
 	}
 
 public slots:
+	void setPage(const QImage*);
 	void setImage(const QImage*);
 	void loadDoc(const QString& i);
 
@@ -49,6 +50,7 @@ private:
 	FormDbConnection *db;
 	QSpinBox *slideZ, *slideP;
 	QString name;
+	QListWidget* list;
 
 };
 

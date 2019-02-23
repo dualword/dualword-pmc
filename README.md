@@ -5,6 +5,7 @@ Features:
  - PDF files are automatically stored in SQLite database
  - offline PDF viewer
  - full-text search
+ - image extraction
  
 License: GNU General Public License (Version 3)  
 Source code: http://github.com/dualword/dualword-pmc/  

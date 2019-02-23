@@ -46,8 +46,6 @@ void Doc::open(){
 	}fz_catch(ctx){
 		//throw dualword_exception("Couldn't open pdf:" + std::string(ctx->error->message));
     }
-
-	saveImage();
 }
 
 void Doc::loadPage(int pi){
@@ -82,7 +80,7 @@ void Doc::loadPage(int pi){
 		int w = fz_pixmap_width(ctx, pix);
 		int h = fz_pixmap_height(ctx, pix);
 		QImage image(pix->samples, w, h, QImage::Format_ARGB32);
-		emit newImage(&image);
+		emit newPage(&image);
 	}fz_always(ctx)	{
 		fz_drop_pixmap(ctx, pix);
 		fz_drop_page(ctx, page);
@@ -114,19 +112,16 @@ void Doc::toText(QString& s){
 			fz_drop_text_sheet(ctx, sheet);
 			fz_drop_page(ctx, page);
 		}
-		 s = tmp;
+		s = tmp;
 
 	}fz_catch(ctx){
 		//char *msg = ctx->error->message;
 	}
 }
 
-void Doc::saveImage(){
+void Doc::getImages(){
 	fz_stream* fs;
 	pdf_document *d;
-
-	ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
-	fz_register_document_handlers(ctx);
     fz_try(ctx){
     	fs = fz_open_memory(ctx, (unsigned char *)data.constData(), data.length());
     	d = pdf_open_document_with_stream(ctx, fs);
@@ -135,14 +130,32 @@ void Doc::saveImage(){
     	for (int i = 1; i < len; i++){
     		pdf_obj *obj = pdf_load_object(ctx, d, i, 0);
     		pdf_obj *type = pdf_dict_get(ctx, obj, PDF_NAME_Subtype);
-    		if (pdf_name_eq(ctx, type, PDF_NAME_Image)) imageCount++;
+    		if (pdf_name_eq(ctx, type, PDF_NAME_Image)){
+        		fz_image *image;
+        		fz_pixmap *pix;
+        		pdf_obj *ref;
+        		char buf[32];
+        		ref = pdf_new_indirect(ctx, d, i, 0);
+        		image = pdf_load_image(ctx, d, ref);
+        		pix = fz_image_get_pixmap(ctx, image, 0, 0);
+        		fz_drop_image(ctx, image);
+        		int rgb = 0;
+        			if (!pix) continue;
+        			if (pix->n == 4) {
+            			imageCount++;
+        				int w = fz_pixmap_width(ctx, pix);
+        				int h = fz_pixmap_height(ctx, pix);
+        	    		QImage img(pix->samples, w, h, QImage::Format_ARGB32);
+        	    		emit newImage(&img);
+        			}
+        		fz_drop_pixmap(ctx, pix);
+    		}
     		pdf_drop_obj(ctx, obj);
     	}
     }fz_always(ctx)	{
     	pdf_close_document(ctx, d);
     	fz_drop_stream(ctx, fs);
 	}fz_catch(ctx){
-		//
+		//qDebug() << ctx->error->message;
     }
 }
-
