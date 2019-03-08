@@ -59,6 +59,7 @@ public:
 public slots:
 	void start();
 	void startIndexer();
+	void stopIndexer();
 
 private:
 	void createDb();

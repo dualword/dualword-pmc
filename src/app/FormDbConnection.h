@@ -29,6 +29,7 @@ public:
 	FormDbConnection(QObject *p = 0);
 	virtual ~FormDbConnection();
 	void open();
+	void create();
 	QSqlDatabase connection() {return db;};
 	void saveDoc(const Doc &d);
 	void getDoc(Doc &d, const QString& id);
@@ -36,8 +37,16 @@ public:
 	void deleteDoc(const QString&);
 	void updateDoc(const QString&);
 	bool exists(const QString&);
+	void reindex();
+	void clearHistory();
+	void saveSearch(const QString&);
+	void searchHistory(QStringList&);
+	int getCount(const QString&);
+	bool getValue(const QString&, QString&);
 
 private:
+	void execSql(const QString&);
+
 	QSqlDatabase db;
 	QString name;
 

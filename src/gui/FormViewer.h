@@ -38,11 +38,24 @@ public slots:
 	void setPage(const QImage*);
 	void setImage(const QImage*);
 	void loadDoc(const QString& i);
+	void contextMenuRequested(const QPoint&);
 
-private:
+	bool loadImages() const {
+		return loadImage;
+	}
+
+	void setLoadImages(bool loadImage) {
+		this->loadImage = loadImage;
+		list->setVisible(loadImage);
+	}
+
+private slots:
 	void createUi();
 	void connectSlots();
+	void copyDoc();
+	void clear();
 
+private:
 	QPushButton *btnBack;
 	QLabel *lbl, *page;
 	QScrollArea *scroll;
@@ -51,6 +64,7 @@ private:
 	QSpinBox *slideZ, *slideP;
 	QString name;
 	QListWidget* list;
+	bool loadImage;
 
 };
 

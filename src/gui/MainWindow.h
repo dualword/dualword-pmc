@@ -26,6 +26,7 @@ public:
 	MainWindow(QWidget *p=0, Qt::WindowFlags f=0);
 	virtual ~MainWindow();
 	void init();
+	bool askYesNo(QWidget*, const QString&);
 	Tab* getTab() { return tab; };
 
 protected:
@@ -34,7 +35,10 @@ protected:
 private slots:
 	void setSlots();
 	void showAbout();
+	void showInfo();
 	void exit();
+	void reindex();
+	void clearHistory();
 
 };
 

@@ -27,11 +27,18 @@ public:
 	Indexer(QObject *p = 0);
 	virtual ~Indexer();
 
+	void setStop(bool b) {
+		this->stop = b;
+	}
+
 signals:
 	void newMsg(const QString&);
 
 protected:
      void run();
+
+private:
+     bool stop;
 
 };
 

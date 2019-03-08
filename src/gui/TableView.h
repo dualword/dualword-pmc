@@ -33,6 +33,7 @@ public:
 public slots:
 	void doubleClicked(QModelIndex index);
 	void setQuery(const QString&);
+	void setSort(bool);
 
 signals:
 	void doubleClicked(const QString&);

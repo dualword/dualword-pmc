@@ -15,9 +15,15 @@
 */
 
 #include "gui/MainWindow.h"
+#include "app/global.h"
 
 void MainWindow::setSlots() {
     QObject::connect(actionExit,SIGNAL(triggered()), SLOT(exit()));
     QObject::connect(actionAbout,SIGNAL(triggered()), SLOT(showAbout()));
+    QObject::connect(actionInfo,SIGNAL(triggered()), SLOT(showInfo()));
+    QObject::connect(actionUpdateIndex,SIGNAL(triggered()), SLOT(reindex()));
+    QObject::connect(actionStartIndexing,SIGNAL(triggered()), pmcApp, SLOT(startIndexer()));
+    QObject::connect(actionStopIndexing,SIGNAL(triggered()), pmcApp, SLOT(stopIndexer()));
+    QObject::connect(actionClearHistory,SIGNAL(triggered()), SLOT(clearHistory()));
 
 }

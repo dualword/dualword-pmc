@@ -16,12 +16,9 @@
 
 #include "Index.h"
 #include "Indexer.h"
-#include "app/FormDbConnection.h"
-#include "app/Doc.h"
-
 #include "global.h"
 
-Indexer::Indexer(QObject *p) : QThread(p){
+Indexer::Indexer(QObject *p) : QThread(p), stop(false){
 
 }
 
@@ -33,7 +30,7 @@ void Indexer::run(){
 	FormDbConnection db;
 	try {
 		db.open();
-		while(true){
+		while(!stop){
 			QScopedPointer<Doc> doc(new Doc());
 			if (!db.getNextDoc(*doc.data())) break;
 			emit newMsg("Indexing " + doc->getPmcid());

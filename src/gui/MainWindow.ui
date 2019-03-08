@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Dualword-PMC</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -39,12 +39,19 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionUpdateIndex"/>
+    <addaction name="actionStartIndexing"/>
+    <addaction name="actionStopIndexing"/>
+    <addaction name="separator"/>
+    <addaction name="actionClearHistory"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionInfo"/>
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuFile"/>
@@ -59,6 +66,31 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionUpdateIndex">
+   <property name="text">
+    <string>Update Index</string>
+   </property>
+  </action>
+  <action name="actionClearHistory">
+   <property name="text">
+    <string>Clear search history</string>
+   </property>
+  </action>
+  <action name="actionInfo">
+   <property name="text">
+    <string>Info</string>
+   </property>
+  </action>
+  <action name="actionStopIndexing">
+   <property name="text">
+    <string>Stop Indexing</string>
+   </property>
+  </action>
+  <action name="actionStartIndexing">
+   <property name="text">
+    <string>Start Indexing</string>
    </property>
   </action>
  </widget>

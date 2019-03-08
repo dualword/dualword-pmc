@@ -30,9 +30,11 @@ public:
 	void init();
 	void refresh();
 	int count();
+	void setSort(bool);
 
 	QVariant headerData ( int , Qt::Orientation, int role = Qt::DisplayRole ) const;
 	QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
+	void sort (int column, Qt::SortOrder order = Qt::AscendingOrder);
 	int	rowCount ( const QModelIndex & p = QModelIndex() ) const;
 	int	columnCount ( const QModelIndex & p = QModelIndex() ) const;
 	void setQuery(const QString& query);
@@ -42,6 +44,8 @@ private:
 	Xapian::MSet set;
 	QString query;
 	QStringList list;
+	int sortColumn;
+	bool sortAsc, sortType;
 
 };
 

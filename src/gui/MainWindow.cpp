@@ -16,6 +16,7 @@
 
 #include "MainWindow.h"
 #include "Tab.h"
+#include "app/global.h"
 
 MainWindow::MainWindow(QWidget *p, Qt::WindowFlags f) : QMainWindow(p, f) {
 	setupUi(this);
@@ -46,4 +47,36 @@ void MainWindow::showAbout() {
 	str.append("License: GPL v3 <br/>");
 	str.append("&copy;2018 Alexander Busorgin <br/>");
 	QMessageBox::about(this, tr("About"), str );
+}
+
+void MainWindow::showInfo(){
+	QString str;
+	FormDbConnection db;
+	db.open();
+	str.append("<br/>PDF Documents: " + QString::number(db.getCount("doc")));
+	str.append("<br/>Db: " + pmcApp->pathDb());
+	str.append("<br/>Db size: " + QString::number(QFile(pmcApp->pathDb()).size()/1000/1000) + " MB.");
+	QMessageBox::about(this, tr("Info"), str );
+}
+
+void MainWindow::reindex() {
+	FormDbConnection db;
+	db.open();
+	db.reindex();
+	pmcApp->startIndexer();
+}
+
+void MainWindow::clearHistory(){
+	if (!mainWin->askYesNo(this, "Clear search history?")) return;
+	FormDbConnection db;
+	db.open();
+	db.clearHistory();
+}
+
+bool MainWindow::askYesNo(QWidget* p, const QString& str){
+	bool yes = false;
+	QMessageBox::StandardButton r;
+	r = QMessageBox::question(p, tr(""),str, QMessageBox::Yes | QMessageBox::No);
+	if (r == QMessageBox::Yes) yes = true;
+	return yes;
 }

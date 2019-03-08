@@ -18,7 +18,7 @@
 #include "global.h"
 
 IndexModel::IndexModel (QObject *p) : QAbstractTableModel(p),
-	db(), set(), query(""), list() {
+	db(), set(), query(""), list(), sortColumn(0), sortAsc(0), sortType(0) {
 	list << "pmcid" << "name" << "page" << "image" << "size";
 	init();
 	setQuery("");
@@ -54,6 +54,12 @@ QVariant IndexModel::data (const QModelIndex& index, int role) const {
 	return QVariant();
 }
 
+void IndexModel::sort (int column, Qt::SortOrder order){
+	sortColumn = column;
+	order == Qt::AscendingOrder ? sortAsc=true : sortAsc=false;
+	refresh();
+}
+
 int	IndexModel::rowCount ( const QModelIndex& p ) const{
 	return set.size();
 }
@@ -72,32 +78,42 @@ QVariant IndexModel::headerData(int section, Qt::Orientation orientation, int ro
 
 
 void IndexModel::setQuery(const QString& query) {
+	beginResetModel();
 	Xapian::Query q(Xapian::Query::MatchAll);
 	this->query = query;
-
 	try{
 		Xapian::Enquire enquire(db);
+		if(sortType){
+			enquire.set_sort_by_relevance();
+		}else{
+			enquire.set_sort_by_value(sortColumn, sortAsc);
+		}
 		Xapian::QueryParser qp;
 	    Xapian::Stem stemmer("english");
 	    qp.set_stemmer(stemmer);
 	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
 		qp.set_database(db);
 		qp.add_prefix("id", "XID");
+		qp.set_default_op(Xapian::Query::OP_AND);
 		if(query.length() > 0) q = qp.parse_query(query.toStdString());
 		enquire.set_query(q);
 		set = enquire.get_mset(0, db.get_doccount());
-		reset();
+		endResetModel();
 	} catch (const Xapian::Error& e) {
 		//
 	}
-
 }
 
 void IndexModel::refresh(){
-	init();
+	db.reopen();
 	setQuery(query);
 }
 
 int	IndexModel::count () {
 	return set.size();
+}
+
+void IndexModel::setSort(bool b){
+	sortType = b;
+	refresh();
 }

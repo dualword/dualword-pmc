@@ -51,8 +51,7 @@ void TableView::currentChanged ( const QModelIndex & current, const QModelIndex 
 
 void TableView::refresh(){
 	idxmodel->refresh();
-	selectRow(std::min(row, idxmodel->count()));
-	setFocus();
+	selectRow(std::min(row, idxmodel->count()-1));
 }
 
 int TableView::count() {
@@ -62,5 +61,10 @@ int TableView::count() {
 void TableView::setQuery(const QString& query) {
 	idxmodel->setQuery(query);
 	selectRow(0);
-	setFocus();
+}
+
+void TableView::setSort(bool b){
+	setSortingEnabled(!b);
+	idxmodel->setSort(b);
+	selectRow(0);
 }

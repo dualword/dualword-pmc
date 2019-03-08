@@ -27,7 +27,7 @@ const QString DualwordPmcApp::dbPath = appPath + "dualword-pmc.sqlite";
 const QString DualwordPmcApp::idxPath = appPath + "index";
 
 DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv), indexer(0), idx(0), lock() {
-	setApplicationName("Dualword-pmc");
+	setApplicationName("Dualword-PMC");
 	#ifdef _VER
 		QApplication::setApplicationVersion(_VER);
 	#endif
@@ -36,7 +36,10 @@ DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv
 }
 
 DualwordPmcApp::~DualwordPmcApp() {
-
+	if(indexer->isRunning()){
+		indexer->setStop(true);
+		indexer->wait();
+	}
 }
 
 DualwordPmcApp *DualwordPmcApp::instance() {
@@ -66,11 +69,18 @@ void DualwordPmcApp::startIndexer(){
 	indexer.reset(new Indexer(this));
 	QObject::connect(indexer.data(), SIGNAL(newMsg(const QString&)), mainWin->statusBar(), SLOT(showMessage(const QString&)));
 	indexer->start(QThread::LowestPriority);
+}
 
+void DualwordPmcApp::stopIndexer(){
+	if(indexer->isRunning()){
+		indexer->setStop(true);
+	}
 }
 
 void DualwordPmcApp::createDb(){
-
+	FormDbConnection db;
+	db.open();
+	db.create();
 }
 
 void DualwordPmcApp::createIndex(){

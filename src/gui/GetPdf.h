@@ -18,9 +18,7 @@
 #define GUI_GETPDF_H_
 
 #include <QtNetwork>
-#include "app/FormDbConnection.h"
 #include "app/global.h"
-#include "app/Doc.h"
 #include "app/NetworkAccessManager.h"
 
 class GetPdf : public QObject{

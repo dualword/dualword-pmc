@@ -14,7 +14,6 @@
  *
 */
 
-#include "Doc.h"
 #include "global.h"
 
 Doc::Doc(QObject *p) : QObject(p), ctx(nullptr), doc(nullptr), zoom(150),
@@ -79,7 +78,8 @@ void Doc::loadPage(int pi){
 
 		int w = fz_pixmap_width(ctx, pix);
 		int h = fz_pixmap_height(ctx, pix);
-		QImage image(pix->samples, w, h, QImage::Format_ARGB32);
+		QImage image(w, h,QImage::Format_ARGB32);
+		rgba(image, pix->samples, w, h);
 		emit newPage(&image);
 	}fz_always(ctx)	{
 		fz_drop_pixmap(ctx, pix);
@@ -134,20 +134,22 @@ void Doc::getImages(){
         		fz_image *image;
         		fz_pixmap *pix;
         		pdf_obj *ref;
-        		char buf[32];
         		ref = pdf_new_indirect(ctx, d, i, 0);
         		image = pdf_load_image(ctx, d, ref);
         		pix = fz_image_get_pixmap(ctx, image, 0, 0);
         		fz_drop_image(ctx, image);
-        		int rgb = 0;
-        			if (!pix) continue;
-        			if (pix->n == 4) {
-            			imageCount++;
-        				int w = fz_pixmap_width(ctx, pix);
-        				int h = fz_pixmap_height(ctx, pix);
-        	    		QImage img(pix->samples, w, h, QImage::Format_ARGB32);
-        	    		emit newImage(&img);
-        			}
+
+				if (!pix) continue;
+				int w = fz_pixmap_width(ctx, pix);
+				int h = fz_pixmap_height(ctx, pix);
+				if (pix->n == 4) {
+					imageCount++;
+					QImage image(w, h, QImage::Format_ARGB32);
+					rgba(image, pix->samples, w, h);
+					emit newImage(&image);
+				}else{
+					imageCount++;
+				}
         		fz_drop_pixmap(ctx, pix);
     		}
     		pdf_drop_obj(ctx, obj);
@@ -158,4 +160,12 @@ void Doc::getImages(){
 	}fz_catch(ctx){
 		//qDebug() << ctx->error->message;
     }
+}
+
+void Doc::rgba(QImage& img, unsigned char* pix, int w, int h){
+	for(int i = 0; i < h; ++i){
+		for ( int j = 0; j < w; ++j, pix += 4 ) {
+			img.setPixel(j, i, qRgba(pix[0], pix[1], pix[2], pix[3]));
+		}
+	}
 }

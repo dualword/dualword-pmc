@@ -18,7 +18,6 @@
 #include "gui/TableView.h"
 #include "app/global.h"
 #include "FormTable.h"
-#include "app/FormDbConnection.h"
 #include "gui/FormViewer.h"
 
 FormTable::FormTable(QWidget *p) : Form(p) {
@@ -31,26 +30,40 @@ FormTable::~FormTable() {
 }
 
 void FormTable::init(){
-	  db = new FormDbConnection(this);
-	  db->open();
+	db = new FormDbConnection(this);
+	db->open();
+	QStringList list;
+	db->searchHistory(list);
+	searchModel->setStringList(list);
 }
 
 void FormTable::createUi(){
 	view = new FormViewer(this);
+	view->setLoadImages(false);
 	view->init();
 
 	table = new TableView(this);
 	connect(table,SIGNAL(customContextMenuRequested(const QPoint&)),
 			SLOT(contextMenuRequested(const QPoint&)));
 
-	QHBoxLayout *bl = new QHBoxLayout;
+	QHBoxLayout *bl = new QHBoxLayout();
 	search = new QLineEdit(this);
 	QObject::connect(search, SIGNAL(returnPressed()), SLOT(doSearch()));
+	completer = new QCompleter(this);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	searchModel = new QStringListModel(search);
+	completer->setModel(searchModel);
+	search->setCompleter(completer);
+
+	sort = new QCheckBox(this);
+	sort->setToolTip("Sort by relevance");
+	QObject::connect(sort, SIGNAL(stateChanged(int)), SLOT(setSort()));
 	bl->addWidget(search);
 	count = new QLineEdit(this);
 	count->setAlignment(Qt::AlignHCenter);
 	count->setMaximumWidth(100);
 	bl->addWidget(count);
+	bl->addWidget(sort);
 
 	QSizePolicy policy = view->sizePolicy();
 	policy.setHorizontalStretch(1);
@@ -74,12 +87,16 @@ void FormTable::connectSlots(){
 
 void FormTable::contextMenuRequested(const QPoint& p){
 	QMenu menu(this);
+	menu.addAction(tr("Open"), this, SLOT(openDoc()));
+	menu.addAction(tr("Open in browser"), this, SLOT(openUrl()));
+	menu.addAction(tr("Save PDF"), this, SLOT(saveDoc()));
 	menu.addAction(tr("Delete"), this, SLOT(deleteDoc()));
-	menu.addAction(tr("Open in browser"), this, SLOT(openDoc()));
 	menu.exec(QCursor::pos());
 }
 
 void FormTable::deleteDoc(){
+	if(table->count() <= 0) return;
+	if (!mainWin->askYesNo(this, "Delete PDF?")) return;
 	QModelIndex i;
 	QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString();
 	db->deleteDoc(id);
@@ -89,7 +106,8 @@ void FormTable::deleteDoc(){
 
 }
 
-void FormTable::openDoc(){
+void FormTable::openUrl(){
+	if(table->count() <= 0) return;
 	QModelIndex i;
 	mainWin->getTab()->createBrowser(QUrl("http://www.ncbi.nlm.nih.gov/pmc/" +
 			(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString()));
@@ -109,12 +127,54 @@ void FormTable::hideEvent(QHideEvent *e){
 }
 
 void FormTable::doSearch(){
+	view->loadDoc("-1");
 	table->setQuery(search->text().trimmed());
 	count->setText(QString::number(table->count()));
-	emit titleChanged(search->text().length()>0 ? search->text() : "Table");
+	emit titleChanged(search->text().trimmed().length()>0 ? search->text() : "Table");
+	if(search->text().trimmed().length() > 0) db->saveSearch(search->text().trimmed());
+	QStringList list;
+	db->searchHistory(list);
+	searchModel->setStringList(list);
+	table->setFocus();
 }
 
 void FormTable::refresh(){
 	table->refresh();
 	count->setText(QString::number(table->count()));
+}
+
+void FormTable::saveDoc(){
+	if(table->count() <= 0) return;
+	QModelIndex i;
+	QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString();
+	Doc doc;
+	db->getDoc(doc, id);
+	if(doc.getPmcid().length() <= 0) return;
+	QFileDialog d(this,tr("Choose directory"), QDir::homePath());
+	d.setFilter(QDir::Dirs | QDir::Hidden);
+	d.setFileMode(QFileDialog::DirectoryOnly);
+	d.setViewMode(QFileDialog::List);
+	d.setOption(QFileDialog::ShowDirsOnly,true);
+	d.setOption(QFileDialog::ReadOnly,true);
+    if (d.exec() == QDialog::Accepted) {
+        QString dir = QString(d.selectedFiles().value(0));
+        QString fname = dir.append(QDir::separator()).append(doc.getName());
+        QFile f(fname);
+        f.open(QIODevice::WriteOnly);
+      	f.write(doc.getData());
+      	f.flush();
+      	f.close();
+        mainWin->statusBar()->showMessage("PDF saved in " + fname, 5000);
+    }
+}
+
+void FormTable::openDoc(){
+	if(table->count() <= 0) return;
+	QModelIndex i;
+	mainWin->getTab()->createViewer((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString());
+}
+
+void FormTable::setSort(){
+	table->setSort(sort->isChecked());
+	table->setFocus();
 }

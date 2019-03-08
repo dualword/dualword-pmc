@@ -15,11 +15,9 @@
 */
 
 #include "FormViewer.h"
-#include "app/FormDbConnection.h"
-#include "app/Doc.h"
 #include "app/global.h"
 
-FormViewer::FormViewer(QWidget *p) : Form(p) {
+FormViewer::FormViewer(QWidget *p) : Form(p), pdf(0), loadImage(true) {
 	createUi();
 
 }
@@ -100,10 +98,27 @@ void FormViewer::createUi(){
 	layout1->addWidget(sp);
 
     setLayout(layout1);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this,SIGNAL(customContextMenuRequested(const QPoint&)),
+			SLOT(contextMenuRequested(const QPoint&)));
 }
 
 void FormViewer::connectSlots(){
 
+}
+
+void FormViewer::contextMenuRequested(const QPoint& p){
+	QMenu menu(this);
+	menu.addAction(tr("Copy to Clipboard"), this, SLOT(copyDoc()));
+	menu.exec(QCursor::pos());
+}
+
+void FormViewer::copyDoc(){
+	if(pdf.isNull()) return;
+	QClipboard *clipboard = QApplication::clipboard();
+	QString s;
+	pdf->toText(s);
+	clipboard->setText(s);
 }
 
 void FormViewer::setPage(const QImage* image){
@@ -112,26 +127,32 @@ void FormViewer::setPage(const QImage* image){
 }
 
 void FormViewer::setImage(const QImage* image){
-	list->addItem(new QListWidgetItem(QIcon(QPixmap::fromImage(*image)), 0));
+	list->addItem(new QListWidgetItem(QIcon(QPixmap::fromImage(*image)), 0, list, 0));
 }
 
 void FormViewer::loadDoc(const QString& i){
-	list->clear();
-	pdf.reset(new Doc());
+	clear();
+	if(i == "-1") return;
 	try {
+		pdf.reset(new Doc());
 		db->getDoc(*pdf.data(),i);
+		if(pdf->getPmcid().length() <= 0) return;
+		pdf->open();
 		name = pdf->getName();
 		connect(pdf.data(), SIGNAL(newPage(const QImage*)), this, SLOT(setPage(const QImage*)));
 		connect(slideZ, SIGNAL(valueChanged(int)), pdf.data(), SLOT(setZoom(int)));
 		pdf->setZoom(slideZ->value());
+		slideP->setEnabled(true);
 		slideP->setMinimum(1);
 		slideP->setMaximum(pdf->getPageCount());
 		slideP->setValue(1);
 		slideP->setSingleStep(1);
 		connect(slideP, SIGNAL(valueChanged(int)), pdf.data(), SLOT(loadPage(int)));
 		page->setText("Pages:"+QString::number(pdf->getPageCount()));
-		connect(pdf.data(), SIGNAL(newImage(const QImage*)), this, SLOT(setImage(const QImage*)));
-		pdf->getImages();
+		if(loadImage){
+			connect(pdf.data(), SIGNAL(newImage(const QImage*)), this, SLOT(setImage(const QImage*)));
+			pdf->getImages();
+		}
 	} catch (const dualword_exception& e) {
 		//
 	}
@@ -139,4 +160,14 @@ void FormViewer::loadDoc(const QString& i){
 
 QString FormViewer::getTitle() const{
 	return "";
+}
+
+void FormViewer::clear(){
+	lbl->clear();
+	list->clear();
+	pdf.reset(0);
+	page->setText("");
+	slideP->setMinimum(0);
+	slideP->setValue(0);
+	slideP->setEnabled(false);
 }

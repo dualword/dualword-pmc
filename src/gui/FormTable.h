@@ -48,14 +48,20 @@ private slots:
 	void createUi();
 	void connectSlots();
 	void deleteDoc();
+	void saveDoc();
 	void openDoc();
+	void openUrl();
 	void doSearch();
+	void setSort();
 
 private:
 	TableView *table;
 	QLineEdit *search, *count;
+	QCompleter *completer;
+	QStringListModel *searchModel;
 	FormDbConnection *db;
 	FormViewer* view;
+	QCheckBox *sort;
 
 };
 

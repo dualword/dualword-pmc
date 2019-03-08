@@ -92,6 +92,7 @@ public slots:
 
 private:
 	Q_DISABLE_COPY(Doc)
+	void rgba(QImage&, unsigned char*, int, int);
 
 	fz_context *ctx;
 	fz_document *doc;

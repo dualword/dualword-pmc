@@ -19,6 +19,8 @@
 
 #include "app/DualwordPmcApp.h"
 #include "gui/MainWindow.h"
+#include "app/FormDbConnection.h"
+#include "app/Doc.h"
 
 #if defined(pmcApp)
 #undef pmcApp
