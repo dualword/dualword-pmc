@@ -52,6 +52,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionInfo"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuFile"/>

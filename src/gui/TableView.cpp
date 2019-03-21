@@ -38,6 +38,14 @@ TableView::~TableView() {
 
 }
 
+void TableView::keyPressEvent(QKeyEvent *event) {
+	if(event->key() == Qt::Key_Return){
+		if(currentIndex().row() != -1) doubleClicked(currentIndex());
+		return;
+	}
+	QTableView::keyPressEvent(event);
+}
+
 void TableView::doubleClicked(QModelIndex index) {
 	row = index.row();
 	mainWin->getTab()->createViewer((model()->sibling(index.row(),0,index)).data().toString());

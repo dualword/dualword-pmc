@@ -41,6 +41,7 @@ signals:
 
 protected:
 	void currentChanged (const QModelIndex&, const QModelIndex& );
+    void keyPressEvent(QKeyEvent *event);
 
 private:
 	IndexModel *idxmodel;

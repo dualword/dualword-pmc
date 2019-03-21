@@ -30,8 +30,12 @@ public:
 	void get(){
 		FormDbConnection db(this);
 		try {
+			Doc d;
+			QRegExp rx("/(PMC[\\d]+)/");
+			if(rx.indexIn(link) == -1) return;
+			d.setPmcid(rx.cap(1));
 			db.open();
-			if(db.exists(link)) return;
+			if(db.exists(d.getPmcid())) return;
 			QUrl api = QUrl(link);
 			NetworkAccessManager *networkMgr = new NetworkAccessManager(this);
 			QNetworkReply *reply = networkMgr->get(QNetworkRequest(api));
@@ -42,14 +46,10 @@ public:
 			loop.exec();
 			QByteArray arr = QByteArray(reply->readAll());
 			if (reply->error() != QNetworkReply::NoError) return;
-			Doc d;
 			d.setName(link.mid(link.lastIndexOf("/")+1));
 			d.setSize(arr.size());
 			d.setData(arr);
 			d.open();
-			QRegExp rx("/(PMC[\\d]+)/");
-			if(rx.indexIn(link) == -1) return;
-			d.setPmcid(rx.cap(1));
 			db.saveDoc(d);
 			emit start();
 		} catch(const dualword_exception& e) {

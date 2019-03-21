@@ -151,6 +151,7 @@ void Doc::getImages(){
 					imageCount++;
 				}
         		fz_drop_pixmap(ctx, pix);
+        		pdf_drop_obj(ctx, ref);
     		}
     		pdf_drop_obj(ctx, obj);
     	}

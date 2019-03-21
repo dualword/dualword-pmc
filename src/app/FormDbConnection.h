@@ -40,7 +40,7 @@ public:
 	void reindex();
 	void clearHistory();
 	void saveSearch(const QString&);
-	void searchHistory(QStringList&);
+	QStringList searchHistory();
 	int getCount(const QString&);
 	bool getValue(const QString&, QString&);
 

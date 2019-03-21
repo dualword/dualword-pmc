@@ -71,6 +71,7 @@ void MainWindow::clearHistory(){
 	FormDbConnection db;
 	db.open();
 	db.clearHistory();
+	tab->indexChange();
 }
 
 bool MainWindow::askYesNo(QWidget* p, const QString& str){

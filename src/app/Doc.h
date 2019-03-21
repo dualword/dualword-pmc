@@ -90,6 +90,14 @@ public slots:
 
 	void emitNewDoc() { emit newDoc(); }
 
+	const qint64& getCreated() const {
+		return created;
+	}
+
+	void setCreated(const qint64& created) {
+		this->created = created;
+	}
+
 private:
 	Q_DISABLE_COPY(Doc)
 	void rgba(QImage&, unsigned char*, int, int);
@@ -101,6 +109,7 @@ private:
 	QString name;
 	QString pmcid;
 	QByteArray data;
+	qint64 created=0;
 
 };
 

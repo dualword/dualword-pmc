@@ -32,9 +32,8 @@ FormTable::~FormTable() {
 void FormTable::init(){
 	db = new FormDbConnection(this);
 	db->open();
-	QStringList list;
-	db->searchHistory(list);
-	searchModel->setStringList(list);
+	searchModel->setStringList(db->searchHistory());
+	table->setFocus();
 }
 
 void FormTable::createUi(){
@@ -132,15 +131,14 @@ void FormTable::doSearch(){
 	count->setText(QString::number(table->count()));
 	emit titleChanged(search->text().trimmed().length()>0 ? search->text() : "Table");
 	if(search->text().trimmed().length() > 0) db->saveSearch(search->text().trimmed());
-	QStringList list;
-	db->searchHistory(list);
-	searchModel->setStringList(list);
+	searchModel->setStringList(db->searchHistory());
 	table->setFocus();
 }
 
 void FormTable::refresh(){
 	table->refresh();
 	count->setText(QString::number(table->count()));
+	searchModel->setStringList(db->searchHistory());
 }
 
 void FormTable::saveDoc(){

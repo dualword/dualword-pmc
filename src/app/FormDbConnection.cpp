@@ -50,23 +50,21 @@ void FormDbConnection::create(){
 	execSql("CREATE TABLE IF NOT EXISTS doc (" \
 			"id INTEGER PRIMARY KEY AUTOINCREMENT," \
 			"pmcid TEXT NOT NULL UNIQUE CHECK(length(pmcid) > 0)," \
-			"name TEXT NOT NULL UNIQUE CHECK(length(name) > 0)," \
+			"name TEXT NOT NULL CHECK(length(name) > 0)," \
 			"size INTEGER NOT NULL, pages INTEGER, images INTEGER," \
 			"created TEXT default CURRENT_TIMESTAMP, updated TEXT);");
 
 	execSql("CREATE TABLE IF NOT EXISTS pdf (" \
-			"id INTEGER PRIMARY KEY AUTOINCREMENT," \
-			"docid INTEGER NOT NULL," \
-			"data BLOB NOT NULL," \
-			"FOREIGN KEY(docid) REFERENCES doc(id) ON DELETE CASCADE );");
+			"id INTEGER PRIMARY KEY REFERENCES doc(id) ON DELETE CASCADE," \
+			"data BLOB NOT NULL);");
 
 	execSql("CREATE TABLE IF NOT EXISTS history (" \
 			"text TEXT NOT NULL UNIQUE CHECK(length(text) > 0)," \
 			"updated TEXT default CURRENT_TIMESTAMP);");
 
 	execSql("CREATE VIEW IF NOT EXISTS v_pdf AS " \
-			"select pmcid,name,size,updated,data " \
-			"FROM doc d INNER JOIN pdf p ON d.id=p.docid;");
+			"select pmcid,name,size,created,updated,data " \
+			"FROM doc d INNER JOIN pdf p ON d.id=p.id;");
 
 	execSql("PRAGMA incremental_vacuum(1000000)");
 }
@@ -96,8 +94,8 @@ void FormDbConnection::saveDoc(const Doc &doc){
 		  throw dualword_exception(q.lastError().text().toStdString());
 		}
 		int id = q.lastInsertId().toInt();
-		q.prepare("INSERT INTO pdf (docid, data) VALUES (:docid, :data)");
-		q.bindValue(":docid", id);
+		q.prepare("INSERT INTO pdf (id, data) VALUES (:id, :data)");
+		q.bindValue(":id", id);
 		q.bindValue(":data", doc.getData());
 		if(!q.exec()){
 		  throw dualword_exception(q.lastError().text().toStdString());
@@ -112,7 +110,7 @@ void FormDbConnection::saveDoc(const Doc &doc){
 
 void FormDbConnection::getDoc(Doc &d, const QString& id){
 	QSqlQuery query(db);
-	query.prepare("SELECT pmcid,name,size,data FROM v_pdf where pmcid = :id" );
+	query.prepare("SELECT pmcid,name,size,data,created FROM v_pdf where pmcid = :id" );
 	query.bindValue(":id", id);
 
 	if(!query.exec()){
@@ -124,13 +122,14 @@ void FormDbConnection::getDoc(Doc &d, const QString& id){
 		d.setName(query.value(1).toString());
 		d.setSize(query.value(2).toInt());
 		d.setData(query.value(3).toByteArray());
+		d.setCreated(query.value(4).toDateTime().toMSecsSinceEpoch());
 	}
 	query.finish();
 
 }
 
 bool FormDbConnection::getNextDoc(Doc &d){
-	QSqlQuery query("SELECT pmcid,name,size,data FROM v_pdf WHERE updated is NULL limit 1",db);
+	QSqlQuery query("SELECT pmcid,name,size,data,created FROM v_pdf WHERE updated is NULL limit 1",db);
 
 	if(!query.exec()){
 	  throw dualword_exception(query.lastError().text().toStdString());
@@ -142,6 +141,7 @@ bool FormDbConnection::getNextDoc(Doc &d){
 			d.setName(query.value(1).toString());
 			d.setSize(query.value(2).toInt());
 			d.setData(query.value(3).toByteArray());
+			d.setCreated(query.value(4).toDateTime().toMSecsSinceEpoch());
 		} catch(const dualword_exception& e) {
 			query.finish();
 			return false;
@@ -190,15 +190,16 @@ void FormDbConnection::updateDoc(const QString& id){
 	}
 }
 
-bool FormDbConnection::exists(const QString& name){
+bool FormDbConnection::exists(const QString& id){
+	bool b = false;
 	QSqlQuery q(db);
-	q.prepare("SELECT * FROM doc where name = :name");
-	q.bindValue(":name", name);
+	q.setForwardOnly(true);
+	q.prepare("SELECT * FROM doc where pmcid = :id");
+	q.bindValue(":id", id);
 	q.exec();
-	int i = q.size();
+	b = q.next();
 	q.finish();
-	if(i <= 0) return false;
-	return true;
+	return b;
 }
 
 void FormDbConnection::reindex(){
@@ -234,13 +235,15 @@ void FormDbConnection::saveSearch(const QString& str){
 	db.commit();
 }
 
-void FormDbConnection::searchHistory(QStringList& list){
+QStringList FormDbConnection::searchHistory(){
+	QStringList list;
 	QSqlQuery q("SELECT text FROM history", db);
 	q.setForwardOnly(true);
 	q.exec();
 	while (q.next())
 		list << q.value(0).toString();
 	q.finish();
+	return list;
 }
 
 int FormDbConnection::getCount(const QString& t){

@@ -62,16 +62,16 @@ int Tab::createBrowser(const QUrl& url){
 
 void Tab::createTable(){
 	auto f = new FormTable(this);
+	addTab(f,"Table");
 	f->init();
     QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
-	addTab(f,"Table");
 }
 
 void Tab::createViewer(const QString& i){
 	auto f = new FormViewer(this);
 	f->init();
 	f->loadDoc(i);
-	setCurrentIndex(addTab(f,f->getName()));
+	addTab(f,f->getName());
 }
 
 void Tab::closeTab(int i){

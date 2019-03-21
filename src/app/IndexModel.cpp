@@ -19,7 +19,7 @@
 
 IndexModel::IndexModel (QObject *p) : QAbstractTableModel(p),
 	db(), set(), query(""), list(), sortColumn(0), sortAsc(0), sortType(0) {
-	list << "pmcid" << "name" << "page" << "image" << "size";
+	list << "PMCID" << "Name" << "Page" << "Image" << "Size" << "Date";
 	init();
 	setQuery("");
 }
@@ -34,7 +34,6 @@ IndexModel::~IndexModel() {
 
 void IndexModel::init(){
 	try {
-		db.close();
 		db = Xapian::Database(QString(pmcApp->pathIdx()).toStdString());
 	} catch (const Xapian::Error& e) {
 		//qDebug() << e.get_msg().c_str();
@@ -46,7 +45,13 @@ QVariant IndexModel::data (const QModelIndex& index, int role) const {
 	if (role == Qt::DisplayRole) {
 		try {
 			Xapian::Document doc = set[index.row()].get_document();
-			return QString::fromStdString(doc.get_value(index.column()));
+			if(index.column()==2 || index.column()==3 || index.column()==4){
+				return QString::number(Xapian::sortable_unserialise(doc.get_value(index.column())),'g',20);
+			}else if(index.column()==5){
+				return QDateTime::fromMSecsSinceEpoch((qint64)Xapian::sortable_unserialise(doc.get_value(index.column())));
+			}else{
+				return QString::fromStdString(doc.get_value(index.column()));
+			}
 		} catch (const Xapian::Error& e) {
 			//
 		}
