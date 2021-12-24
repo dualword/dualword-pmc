@@ -1,10 +1,12 @@
+#
 /src/.build/
 /src/dualword-pmc
 /Makefile
 /src/Makefile
 /tr/*.qm
+.qmake.stash
 
-#eclipse
+#
 /.cproject
 /.project
 /.externalToolBuilders

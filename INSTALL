@@ -1,4 +1,4 @@
 How to build:
- - prerequisites: C++11 compiler, Qt 4.8.6, Xapian 1.2.12, MuPDF 1.8
+ - prerequisites: C++14 compiler, Qt 5.x.x, Xapian 1.2.12, MuPDF 1.14.x
  - qmake
  - make

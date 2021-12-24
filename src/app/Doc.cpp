@@ -1,22 +1,22 @@
 /*
- *	Dualword-pmc is free software: you can redistribute it and/or modify
+ *	Dualword-PMC is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
  *	(at your option) any later version.
  *
- *	Dualword-pmc is distributed in the hope that it will be useful,
+ *	Dualword-PMC is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Dualword-pmc. If not, see <http://www.gnu.org/licenses/>.
+ *	along with Dualword-PMC. If not, see <http://www.gnu.org/licenses/>.
  *
 */
 
 #include "global.h"
 
-Doc::Doc(QObject *p) : QObject(p), ctx(nullptr), doc(nullptr), zoom(150),
+Doc::Doc(QObject *p) : QObject(p), ctx(nullptr), doc(nullptr), zoom(150), res(100),
 	pageNum(0),	pageCount(0), imageCount(0) {
 
 }
@@ -48,8 +48,6 @@ void Doc::open(){
 }
 
 void Doc::loadPage(int pi){
-	Q_ASSERT( pi >= 0 );
-
 	int p = --pi;
 	if(p < 0 || p > pageCount) return;
 	pageNum = p;
@@ -59,23 +57,19 @@ void Doc::loadPage(int pi){
 	fz_device *dev;
 	fz_try(ctx){
 	    page = fz_load_page(ctx, doc, pageNum);
-		int rotation = 0;
-	    fz_matrix transform = fz_identity;
-	    fz_rotate(&transform, rotation);
-	    fz_pre_scale(&transform, zoom / 100.0f, zoom / 100.0f);
-
-		fz_rect bounds;
-		fz_bound_page(ctx, page, &bounds);
-		fz_transform_rect(&bounds, &transform);
-
-		fz_irect bbox;
-		fz_round_rect(&bbox, &bounds);
-		pix = fz_new_pixmap_with_bbox(ctx, fz_device_rgb(ctx), &bbox);
+	    fz_matrix transform;
+	    float z =zoom/res;
+	    transform = fz_pre_scale(fz_rotate(0), z, z);
+		fz_rect rect = fz_bound_page(ctx, page);
+		rect = fz_transform_rect(rect, transform);
+		int w1 = 90 * (rect.x1 - rect.x0) / 72;
+		int h1 = 90 * (rect.y1 - rect.y0) / 72;
+		rect  = fz_make_rect(0,0, (w1 * z ) , (h1 * z ) );
+		fz_irect irect = fz_round_rect(rect);
+		pix = fz_new_pixmap_with_bbox(ctx, fz_device_rgb(ctx), irect, nullptr, 1);
 		fz_clear_pixmap_with_value(ctx, pix, 0xff);
-
-		dev = fz_new_draw_device(ctx, pix);
-		fz_run_page(ctx, page, dev, &transform, NULL);
-
+		dev = fz_new_draw_device(ctx, transform, pix);
+		fz_run_page(ctx, page, dev, transform, NULL);
 		int w = fz_pixmap_width(ctx, pix);
 		int h = fz_pixmap_height(ctx, pix);
 		QImage image(w, h,QImage::Format_ARGB32);
@@ -84,11 +78,11 @@ void Doc::loadPage(int pi){
 	}fz_always(ctx)	{
 		fz_drop_pixmap(ctx, pix);
 		fz_drop_page(ctx, page);
+		fz_close_device(ctx, dev);
     	fz_drop_device(ctx, dev);
 	}fz_catch(ctx){
 		//char *msg = ctx->error->message;
 	}
-
 }
 
 void Doc::toText(QString& s){
@@ -96,24 +90,37 @@ void Doc::toText(QString& s){
 		QString tmp;
 
 		for(int j=0;j<pageCount;j++){
+			fz_stext_page *text = NULL;
+			fz_matrix ctm;
+			fz_rect rect;
+			fz_device *dev = NULL;
+			fz_output *out = NULL;
+			fz_cookie *cookie;
+			fz_var(text);
 			fz_page *page = fz_load_page(ctx, doc, j);
-			fz_text_sheet *sheet = fz_new_text_sheet(ctx);
-			fz_text_page *text = fz_new_text_page(ctx);
-			fz_device *dev = fz_new_text_device(ctx, sheet, text);
-			fz_run_page(ctx, page, dev, &fz_identity, NULL);
-			fz_buffer *buf = fz_new_buffer(ctx, 256);
-			fz_output *out = fz_new_output_with_buffer(ctx, buf);
-			fz_print_text_page(ctx, out, text);
-			tmp.append((char*) buf->data);
-			fz_drop_output(ctx, out);
-			fz_drop_buffer(ctx, buf);
+			rect = fz_bound_page(ctx, page);
+			ctm = fz_pre_scale(fz_rotate(0), zoom/res, zoom/res);
+			fz_stext_options stext_options;
+			stext_options.flags = 0;
+			text = fz_new_stext_page(ctx, rect);
+			dev = fz_new_stext_device(ctx,  text, &stext_options);
+			fz_run_page(ctx, page, dev, ctm, cookie);
+			fz_close_device(ctx, dev);
 			fz_drop_device(ctx, dev);
-			fz_drop_text_page(ctx, text);
-			fz_drop_text_sheet(ctx, sheet);
+			unsigned char *data;
+			fz_buffer *buf = fz_new_buffer(ctx, 256);
+			out = fz_new_output_with_buffer(ctx, buf);
+			fz_print_stext_page_as_text(ctx, out, text);
+			fz_buffer_storage(ctx, buf, &data);
+			tmp.append((char*) data);
+			fz_drop_buffer(ctx, buf);
+			fz_drop_output(ctx, out);
+			fz_drop_device(ctx, dev);
 			fz_drop_page(ctx, page);
 		}
 		s = tmp;
-
+	}fz_always(ctx){
+		//
 	}fz_catch(ctx){
 		//char *msg = ctx->error->message;
 	}
@@ -128,17 +135,16 @@ void Doc::getImages(){
     	int len = pdf_count_objects(ctx, d);
 
     	for (int i = 1; i < len; i++){
-    		pdf_obj *obj = pdf_load_object(ctx, d, i, 0);
-    		pdf_obj *type = pdf_dict_get(ctx, obj, PDF_NAME_Subtype);
-    		if (pdf_name_eq(ctx, type, PDF_NAME_Image)){
+    		pdf_obj *obj = pdf_load_object(ctx, d, i);
+    		pdf_obj *type = pdf_dict_get(ctx, obj, PDF_NAME(Subtype));
+    		if (pdf_name_eq(ctx, type, PDF_NAME(Image))){
         		fz_image *image;
         		fz_pixmap *pix;
         		pdf_obj *ref;
         		ref = pdf_new_indirect(ctx, d, i, 0);
         		image = pdf_load_image(ctx, d, ref);
-        		pix = fz_image_get_pixmap(ctx, image, 0, 0);
+        		pix = fz_get_pixmap_from_image(ctx, image, NULL, NULL, 0, 0);
         		fz_drop_image(ctx, image);
-
 				if (!pix) continue;
 				int w = fz_pixmap_width(ctx, pix);
 				int h = fz_pixmap_height(ctx, pix);
@@ -156,7 +162,7 @@ void Doc::getImages(){
     		pdf_drop_obj(ctx, obj);
     	}
     }fz_always(ctx)	{
-    	pdf_close_document(ctx, d);
+    	pdf_drop_document(ctx, d);
     	fz_drop_stream(ctx, fs);
 	}fz_catch(ctx){
 		//qDebug() << ctx->error->message;
