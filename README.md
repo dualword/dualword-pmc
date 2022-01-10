@@ -11,9 +11,9 @@ License: GNU General Public License (Version 3)
 Source code: http://github.com/dualword/dualword-pmc/  
 
 Third Party Software:
- - Qt License: LGPL v2.1
+ - Qt License: LGPL v3
  - Xapian License: GNU General Public License
- - MuPDF License: GNU Affero General Public License
+ - PDFium License: BSD 3-clause
  - SQLite License: Public Domain
   
 ![Screenshot](etc/screenshot/dualword-pmc_1.png)

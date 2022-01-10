@@ -20,10 +20,7 @@
 #include <QtCore>
 #include <QImage>
 
-extern "C"{
-	#include <mupdf/pdf.h>
-	#include <mupdf/fitz.h>
-}
+class CPDF_Document;
 
 class Doc : public QObject{
 	Q_OBJECT
@@ -102,8 +99,7 @@ private:
 	Q_DISABLE_COPY(Doc)
 	void rgba(QImage&, unsigned char*, int, int);
 
-	fz_context *ctx;
-	fz_document *doc;
+	CPDF_Document* doc;
 	int pageNum, pageCount, imageCount;
 	float zoom, res;
 	int size;

@@ -49,7 +49,7 @@ void MainWindow::showAbout() {
 	str.append(qApp->applicationName());
 	str.append(" ").append(qApp->applicationVersion()).append("<br>");
 	str.append("License: GPL v3 <br/>");
-	str.append("&copy;2018 Alexander Busorgin <br/>");
+	str.append("&copy;2018-2022 Alexander Busorgin <br/>");
 	QMessageBox::about(this, tr("About"), str );
 }
 
