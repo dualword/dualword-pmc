@@ -20,7 +20,9 @@
 #include <QtCore>
 #include <QImage>
 
-class CPDF_Document;
+#include "public/fpdfview.h"
+#include "public/fpdf_edit.h"
+#include "public/fpdf_text.h"
 
 class Doc : public QObject{
 	Q_OBJECT
@@ -99,7 +101,7 @@ private:
 	Q_DISABLE_COPY(Doc)
 	void rgba(QImage&, unsigned char*, int, int);
 
-	CPDF_Document* doc;
+	FPDF_DOCUMENT doc;
 	int pageNum, pageCount, imageCount;
 	float zoom, res;
 	int size;

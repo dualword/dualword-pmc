@@ -19,23 +19,25 @@
 #include "app/NetworkAccessManager.h"
 #include "gui/GetPdf.h"
 
-WebPage::WebPage(QObject *p) : QWebPage(p){
-	setNetworkAccessManager(new NetworkAccessManager(this));
-	history()->setMaximumItemCount(25);
+WebPage::WebPage(QObject *p) : QWebEnginePage(p){
+	history()->clear();
+    profile()->cookieStore()->deleteAllCookies();
+    profile()->clearHttpCache();
+    profile()->clearAllVisitedLinks();
 }
 
-bool WebPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type){
-	if (type == QWebPage::NavigationTypeLinkClicked) {
-		if(!request.url().host().toLower().contains("ncbi.nlm.nih.gov")) return false;
+bool WebPage::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool mframe){
+	if (type == QWebEnginePage::NavigationTypeLinkClicked) {
+		if(!url.host().toLower().contains("ncbi.nlm.nih.gov")) return false;
 	}
-    return QWebPage::acceptNavigationRequest(frame, request, type);
+    return QWebEnginePage::acceptNavigationRequest(url, type, mframe);
 }
 
 WebPage::~WebPage() {
 
 }
 
-Browser::Browser(QWidget *p) : QWebView(p), searchString(""){
+Browser::Browser(QWidget *p) : QWebEngineView(p), searchString(""){
 	setPage(new WebPage(this));
 	new QShortcut(QKeySequence::Find, this, SLOT(findTxt()), nullptr, Qt::WidgetWithChildrenShortcut);
     QObject::connect(page(), SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
@@ -56,19 +58,19 @@ void Browser::findTxt(){
 }
 
 void Browser::contextMenuEvent(QContextMenuEvent *event){
-    auto r = page()->mainFrame()->hitTestContent(event->pos());
-    if (!r.linkUrl().isEmpty()) {
+    auto r = page()->contextMenuData().linkUrl();
+    if (!r.isEmpty()) {
         QMenu menu(this);
-        if(isValidUrl(r.linkUrl())){
+        if(isValidUrl(r)){
     		auto a = menu.addAction(tr("Open Link in New Tab"), this, SLOT(openLink()));
-    		a->setData(r.linkUrl());
+    		a->setData(r);
     		menu.addSeparator();
         }
-        menu.addAction(pageAction(QWebPage::CopyLinkToClipboard));
+        menu.addAction(pageAction(QWebEnginePage::CopyLinkToClipboard));
         menu.exec(mapToGlobal(event->pos()));
         return;
     }
-    QWebView::contextMenuEvent(event);
+    QWebEngineView::contextMenuEvent(event);
 }
 
 void Browser::openLink(){
@@ -86,13 +88,13 @@ void Browser::loadFinished (bool ok){
 		emit titleChanged("Error");
 		return;
 	}
-
 	if(url().toString().contains("ncbi.nlm.nih.gov/pmc/articles",Qt::CaseInsensitive)){
-		QWebFrame *frame = page()->mainFrame();
-		if(!frame) return;
-		QWebElement doc = frame->documentElement();
-		if(doc.isNull()) return;
-		QString link = doc.findFirst("link[rel=\"alternate\"][type=\"application/pdf\"]").attribute("href");
-		if(link.length()>0) pmcApp->startTask<DownloadTask>("https://www.ncbi.nlm.nih.gov"+link);
+		 page()->runJavaScript("document.querySelector('link[rel=\"alternate\"][type=\"application/pdf\"]').getAttribute('href')",
+				 [=](QVariant var){
+			 	 	 QString link = var.toString().trimmed();
+			 	 	 if( link.length() > 0)
+			 	 		 pmcApp->startTask<DownloadTask>("https://www.ncbi.nlm.nih.gov" + link);
+			});
 	}
 }
+

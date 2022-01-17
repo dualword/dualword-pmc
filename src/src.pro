@@ -2,15 +2,14 @@ include("dualword-pmc.version.pri")
 
 TARGET = dualword-pmc
 TEMPLATE = app
+message(Building: = $${TARGET} - $${VERSION})
 
-QT += sql network webkit xml xmlpatterns
- 
 DEPENDPATH += .
 INCLUDEPATH += .
 
-CONFIG += qt webkit network thread release
-
-message(Building: = $${TARGET} - $${VERSION})
+QT += webenginewidgets sql
+CONFIG += c++11 thread release 
+LIBS += -lxapian -lPdfium
 
 HEADERS += \
 	app/Doc.h \

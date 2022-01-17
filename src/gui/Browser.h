@@ -17,9 +17,9 @@
 #ifndef BROWSER_H_
 #define BROWSER_H_
 
-#include <QtWebKitWidgets/QtWebKitWidgets>
+#include <QtWebEngineWidgets/QtWebEngineWidgets>
 
-class WebPage : public QWebPage{
+class WebPage : public QWebEnginePage{
 	Q_OBJECT
 
 public:
@@ -27,11 +27,10 @@ public:
 	virtual ~WebPage();
 
 protected:
-    bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, NavigationType type);
-
+    bool acceptNavigationRequest(const QUrl&, QWebEnginePage::NavigationType, bool);
 };
 
-class Browser : public QWebView {
+class Browser : public QWebEngineView {
 	Q_OBJECT
 
 public:

@@ -35,7 +35,7 @@ public:
 	DualwordPmcApp(int &argc, char **argv);
 	virtual ~DualwordPmcApp();
 	MainWindow* window() {return w;};
-	Index* index() {return idx.data();};
+	Index* index() {return idx.get();};
     static DualwordPmcApp *instance();
     static QString getHtml(const QString&);
 

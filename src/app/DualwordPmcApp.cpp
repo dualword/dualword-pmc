@@ -19,6 +19,8 @@
 #include <QFile>
 #include "app/global.h"
 
+#include "public/fpdfview.h"
+
 const QString DualwordPmcApp::appPath = QDir::homePath().append(QDir::separator()).append(".dualword-pmc")
 .append(QDir::separator());
 
@@ -32,10 +34,11 @@ DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv
 		QApplication::setApplicationVersion(_VER);
 	#endif
 	QApplication::setQuitOnLastWindowClosed(true);
-
+	FPDF_InitLibrary();
 }
 
 DualwordPmcApp::~DualwordPmcApp() {
+	FPDF_DestroyLibrary();
 	if(indexer->isRunning()){
 		indexer->setStop(true);
 		indexer->wait();
@@ -67,7 +70,7 @@ void DualwordPmcApp::startIndexer(){
 	QMutexLocker locker(&lock);
 	if(indexer && indexer->isRunning()) return;
 	indexer.reset(new Indexer(this));
-	QObject::connect(indexer.data(), SIGNAL(newMsg(const QString&)), mainWin->statusBar(), SLOT(showMessage(const QString&)));
+	QObject::connect(indexer.get(), SIGNAL(newMsg(const QString&)), mainWin->statusBar(), SLOT(showMessage(const QString&)));
 	indexer->start(QThread::LowestPriority);
 }
 

@@ -1,7 +1,7 @@
 Dualword-PMC - [PubMed Central](http://www.ncbi.nlm.nih.gov/pmc/) browser.
 
 Features:
- - web browser with access to PubMed Central website
+ - site-specific web browser with access to PubMed Central website
  - PDF files are automatically stored in SQLite database
  - offline PDF viewer
  - full-text search
