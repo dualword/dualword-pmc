@@ -49,6 +49,7 @@ void MainWindow::showAbout() {
 	str.append(qApp->applicationName());
 	str.append(" ").append(qApp->applicationVersion()).append("<br>");
 	str.append("License: GPL v3 <br/>");
+	str.append("Website: <a href='http://github.com/dualword/dualword-pmc'>Dualword-PMC</a><br/>");
 	str.append("&copy;2018-2022 Alexander Busorgin <br/>");
 	QMessageBox::about(this, tr("About"), str );
 }

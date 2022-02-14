@@ -20,10 +20,7 @@
 #include "gui/GetPdf.h"
 
 WebPage::WebPage(QObject *p) : QWebEnginePage(p){
-	history()->clear();
-    profile()->cookieStore()->deleteAllCookies();
-    profile()->clearHttpCache();
-    profile()->clearAllVisitedLinks();
+
 }
 
 bool WebPage::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool mframe){
@@ -34,7 +31,7 @@ bool WebPage::acceptNavigationRequest(const QUrl& url, QWebEnginePage::Navigatio
 }
 
 WebPage::~WebPage() {
-
+	history()->clear();
 }
 
 Browser::Browser(QWidget *p) : QWebEngineView(p), searchString(""){

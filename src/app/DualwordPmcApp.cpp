@@ -20,6 +20,7 @@
 #include "app/global.h"
 
 #include "public/fpdfview.h"
+#include <QtWebEngineWidgets/QtWebEngineWidgets>
 
 const QString DualwordPmcApp::appPath = QDir::homePath().append(QDir::separator()).append(".dualword-pmc")
 .append(QDir::separator());
@@ -38,6 +39,9 @@ DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv
 }
 
 DualwordPmcApp::~DualwordPmcApp() {
+	QWebEngineProfile::defaultProfile()->cookieStore()->deleteAllCookies();
+	QWebEngineProfile::defaultProfile()->clearHttpCache();
+	QWebEngineProfile::defaultProfile()->clearAllVisitedLinks();
 	FPDF_DestroyLibrary();
 	if(indexer->isRunning()){
 		indexer->setStop(true);

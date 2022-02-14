@@ -50,7 +50,7 @@ void Doc::toText(QString& s){
 		FPDF_PAGE page = FPDF_LoadPage(doc, j);
 		FPDF_TEXTPAGE tpage = FPDFText_LoadPage(page);
 		int len = FPDFText_CountChars(tpage);
-		ushort *buf = new ushort[len+1];
+		ushort *buf = new ushort[++len];
 		FPDFText_GetText(tpage,0, len, buf);
 		tmp.append(QString::fromUtf16(buf, len));
         FPDF_ClosePage(page);
@@ -72,9 +72,8 @@ void Doc::getImages(){
 				FPDFImageObj_GetImageMetadata(o, page, &meta);
 				if(meta.colorspace == FPDF_COLORSPACE_DEVICERGB || meta.colorspace ==FPDF_COLORSPACE_CALRGB
 				   || meta.colorspace == FPDF_COLORSPACE_DEVICECMYK || meta.colorspace == FPDF_COLORSPACE_ICCBASED){
-					int w = FPDFBitmap_GetWidth(bitmap);
-					int h = FPDFBitmap_GetHeight(bitmap);
-					QImage image((uchar*)FPDFBitmap_GetBuffer(bitmap), w, h, FPDFBitmap_GetStride(bitmap), QImage::Format_ARGB32);
+					QImage image((uchar*)FPDFBitmap_GetBuffer(bitmap), FPDFBitmap_GetWidth(bitmap),
+							FPDFBitmap_GetHeight(bitmap), FPDFBitmap_GetStride(bitmap), QImage::Format_ARGB32);
 				    emit newImage(&image);
 					imageCount++;
 				} else{
