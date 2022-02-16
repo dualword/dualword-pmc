@@ -25,9 +25,13 @@ WebPage::WebPage(QObject *p) : QWebEnginePage(p){
 
 bool WebPage::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool mframe){
 	if (type == QWebEnginePage::NavigationTypeLinkClicked) {
-		if(!url.host().toLower().contains("ncbi.nlm.nih.gov")) return false;
+		if(!isValidUrl(url)) return false;
 	}
     return QWebEnginePage::acceptNavigationRequest(url, type, mframe);
+}
+
+bool WebPage::isValidUrl(const QUrl& url){
+	return url.host().toLower().endsWith("ncbi.nlm.nih.gov");
 }
 
 WebPage::~WebPage() {
@@ -58,8 +62,9 @@ void Browser::contextMenuEvent(QContextMenuEvent *event){
     auto r = page()->contextMenuData().linkUrl();
     if (!r.isEmpty()) {
         QMenu menu(this);
-        if(isValidUrl(r)){
-    		auto a = menu.addAction(tr("Open Link in New Tab"), this, SLOT(openLink()));
+        if((qobject_cast<WebPage*>(page()))->isValidUrl(r)){
+        	QAction *a = menu.addAction(tr("Open Link in New Tab"), [&]{
+    			mainWin->getTab()->createBrowser(a->data().toUrl());});
     		a->setData(r);
     		menu.addSeparator();
         }
@@ -70,21 +75,7 @@ void Browser::contextMenuEvent(QContextMenuEvent *event){
     QWebEngineView::contextMenuEvent(event);
 }
 
-void Browser::openLink(){
-	auto a = qobject_cast<QAction*>(sender());
-	mainWin->getTab()->createBrowser(a->data().toUrl());
-}
-
-bool Browser::isValidUrl(const QUrl& url){
-	return url.host().contains("ncbi.nlm.nih.gov",Qt::CaseInsensitive);
-}
-
 void Browser::loadFinished (bool ok){
-	if(!ok){
-		setHtml((pmcApp->getHtml(":/error.html")).arg("").arg(url().toString()));
-		emit titleChanged("Error");
-		return;
-	}
 	if(url().toString().contains("ncbi.nlm.nih.gov/pmc/articles",Qt::CaseInsensitive)){
 		 page()->runJavaScript("document.querySelector('link[rel=\"alternate\"][type=\"application/pdf\"]').getAttribute('href')",
 				 [=](QVariant var){

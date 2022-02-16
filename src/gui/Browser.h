@@ -25,6 +25,7 @@ class WebPage : public QWebEnginePage{
 public:
 	WebPage(QObject *p = 0);
 	virtual ~WebPage();
+	bool isValidUrl(const QUrl& url);
 
 protected:
     bool acceptNavigationRequest(const QUrl&, QWebEnginePage::NavigationType, bool);
@@ -43,8 +44,6 @@ public slots:
 
 protected slots:
     virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual	bool isValidUrl(const QUrl&);
-	void openLink();
 
 protected:
 	QString searchString;
