@@ -28,6 +28,7 @@ public:
 	Form(QWidget *p = 0);
 	virtual ~Form();
 	virtual QString getTitle() const = 0;
+	virtual void init() {};
 
 signals:
 	void titleChanged (const QString&);
@@ -38,6 +39,13 @@ protected:
 
 };
 
+template <typename T>
+class MainForm : public Form {
 
+public:
+	MainForm(QWidget *p = 0) : Form(p) {};
+	virtual ~MainForm(){};
+
+};
 
 #endif /* GUI_FORM_H_ */

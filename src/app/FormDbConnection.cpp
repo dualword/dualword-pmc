@@ -1,16 +1,16 @@
 /*
- *	Dualword-pmc is free software: you can redistribute it and/or modify
+ *	Dualword-PMC is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
  *	(at your option) any later version.
  *
- *	Dualword-pmc is distributed in the hope that it will be useful,
+ *	Dualword-PMC is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Dualword-pmc. If not, see <http://www.gnu.org/licenses/>.
+ *	along with Dualword-PMC. If not, see <http://www.gnu.org/licenses/>.
  *
 */
 
@@ -26,7 +26,7 @@ FormDbConnection::~FormDbConnection() {
 	QSqlDatabase::removeDatabase(name);
 }
 
-void FormDbConnection::open(){
+FormDbConnection* FormDbConnection::open(){
 	name = QString ("dbc-");
 	name.append( QString::number( reinterpret_cast<int>(this) ) );
 
@@ -42,7 +42,7 @@ void FormDbConnection::open(){
 	execSql("PRAGMA temp_store = MEMORY");
 	execSql("PRAGMA foreign_keys = ON");
 	execSql("PRAGMA auto_vacuum = 2");
-
+	return this;
 }
 
 void FormDbConnection::create(){
@@ -153,6 +153,27 @@ bool FormDbConnection::getNextDoc(Doc &d){
 	return false;
 }
 
+bool FormDbConnection::getNextDelete(Doc &d){
+	QSqlQuery query("SELECT pmcid FROM v_pdf WHERE created is NULL limit 1",db);
+
+	if(!query.exec()){
+	  throw dualword_exception(query.lastError().text().toStdString());
+	}
+
+	if(query.next()){
+		try {
+			d.setPmcid(query.value(0).toString());
+		} catch(const dualword_exception& e) {
+			query.finish();
+			return false;
+		}
+		query.finish();
+		return true;
+	}
+	query.finish();
+	return false;
+}
+
 void FormDbConnection::deleteDoc(const QString& id){
 
 	try {
@@ -218,6 +239,24 @@ void FormDbConnection::reindex(){
 	}
 }
 
+void FormDbConnection::remove(const QString& id){
+	try {
+		db.transaction();
+		QSqlQuery q(db);
+		q.prepare("UPDATE doc SET created = NULL WHERE pmcid = :id");
+		q.bindValue(":id", id);
+
+		if(!q.exec()){
+		  throw dualword_exception(q.lastError().text().toStdString());
+		}
+		q.finish();
+		db.commit();
+	} catch (const dualword_exception& e) {
+		db.rollback();
+		//throw dualword_exception(e.what());
+	}
+}
+
 void FormDbConnection::saveSearch(const QString& str){
 	db.transaction();
 	QSqlQuery q(db);
@@ -268,6 +307,14 @@ bool FormDbConnection::getValue(const QString& sql, QString& str){
 	}
 	q.finish();
 	return b;
+}
+
+int FormDbConnection::getId(const QString& id){
+	QSqlQuery q("select id from doc where pmcid='"+id+"'", db);
+	q.setForwardOnly(true);
+	q.exec();
+	q.first();
+	return q.value(0).toInt();
 }
 
 void FormDbConnection::clearHistory(){

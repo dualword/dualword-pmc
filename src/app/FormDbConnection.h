@@ -1,16 +1,16 @@
 /*
- *	Dualword-pmc is free software: you can redistribute it and/or modify
+ *	Dualword-PMC is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
  *	(at your option) any later version.
  *
- *	Dualword-pmc is distributed in the hope that it will be useful,
+ *	Dualword-PMC is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Dualword-pmc. If not, see <http://www.gnu.org/licenses/>.
+ *	along with Dualword-PMC. If not, see <http://www.gnu.org/licenses/>.
  *
 */
 
@@ -28,16 +28,18 @@ class FormDbConnection : public QObject{
 public:
 	FormDbConnection(QObject *p = 0);
 	virtual ~FormDbConnection();
-	void open();
+	FormDbConnection* open();
 	void create();
 	QSqlDatabase connection() {return db;};
 	void saveDoc(const Doc &d);
 	void getDoc(Doc &d, const QString& id);
 	bool getNextDoc(Doc &d);
+	bool getNextDelete(Doc &d);
 	void deleteDoc(const QString&);
 	void updateDoc(const QString&);
 	bool exists(const QString&);
 	void reindex();
+	void remove(const QString&);
 	void clearHistory();
 	void saveSearch(const QString&);
 	QStringList searchHistory();
@@ -46,6 +48,7 @@ public:
 
 private:
 	void execSql(const QString&);
+	int getId(const QString&);
 
 	QSqlDatabase db;
 	QString name;

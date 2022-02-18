@@ -14,9 +14,8 @@
  *
 */
 
-#include "MainWindow.h"
-#include "Tab.h"
 #include "app/global.h"
+#include "Tab.h"
 
 MainWindow::MainWindow(QWidget *p, Qt::WindowFlags f) : QMainWindow(p, f) {
 	setupUi(this);
@@ -29,7 +28,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::init(){
-	tab->createTable();
+	tab->createForm();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -66,16 +65,14 @@ void MainWindow::showInfo(){
 
 void MainWindow::reindex() {
 	FormDbConnection db;
-	db.open();
-	db.reindex();
+	db.open()->reindex();
 	pmcApp->startIndexer();
 }
 
 void MainWindow::clearHistory(){
 	if (!mainWin->askYesNo(this, "Clear search history?")) return;
 	FormDbConnection db;
-	db.open();
-	db.clearHistory();
+	db.open()->clearHistory();
 	tab->indexChange();
 }
 

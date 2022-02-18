@@ -1,16 +1,16 @@
 /*
- *	Dualword-pmc is free software: you can redistribute it and/or modify
+ *	Dualword-PMC is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
  *	(at your option) any later version.
  *
- *	Dualword-pmc is distributed in the hope that it will be useful,
+ *	Dualword-PMC is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Dualword-pmc. If not, see <http://www.gnu.org/licenses/>.
+ *	along with Dualword-PMC. If not, see <http://www.gnu.org/licenses/>.
  *
 */
 
@@ -29,11 +29,8 @@ Tab::Tab(QWidget *p) : QTabWidget(p) {
     setTabsClosable(true);
     setMovable(true);
     connect(this, SIGNAL(currentChanged (int)), SLOT(currentChanged(int)));
-    connect(this, SIGNAL(tabCloseRequested (int)), SLOT(closeTab(int)));
-    connect(this, SIGNAL(NewBrowser()), SLOT(createBrowser()));
-    connect(this, SIGNAL(NewTable()), this, SLOT(createTable()));
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-    		SLOT(contextMenuRequested(QPoint)));
+    connect(this, &QTabWidget::tabCloseRequested, this, &Tab::closeTab);
+    connect(this, &QTabWidget::customContextMenuRequested, this, &Tab::contextMenuRequested);
 }
 
 Tab::~Tab() {
@@ -42,15 +39,9 @@ Tab::~Tab() {
 
 void Tab::contextMenuRequested(const QPoint &position) {
 	QMenu menu;
-    menu.addAction(tr("Browser Tab"), this, SIGNAL(NewBrowser()));
-    menu.addAction(tr("Table"), this, SIGNAL(NewTable()));
+    menu.addAction(tr("Browser Tab"), [this]{createForm<FormBrowser>();});
+    menu.addAction(tr("Table"), [this]{createForm();});
     menu.exec(QCursor::pos());
-}
-
-int Tab::createBrowser(){
-	auto f = new FormBrowser(this);
-    QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
-	return addTab(f,"Browser");
 }
 
 int Tab::createBrowser(const QUrl& url){
@@ -58,13 +49,6 @@ int Tab::createBrowser(const QUrl& url){
     QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
     f->getBrowser()->load(url);
 	return addTab(f,"Browser");
-}
-
-void Tab::createTable(){
-	auto f = new FormTable(this);
-	addTab(f,"Table");
-	f->init();
-    QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
 }
 
 void Tab::createViewer(const QString& i){
@@ -75,7 +59,7 @@ void Tab::createViewer(const QString& i){
 }
 
 void Tab::closeTab(int i){
-	if(this->count() == 1) createTable();
+	if(this->count() == 1) createForm();
 	widget(i)->deleteLater();
 	removeTab(i);
 }

@@ -19,7 +19,7 @@
 
 #include <QtGui>
 
-FormBrowser::FormBrowser(QWidget *p) : Form(p), browser(new Browser(this)) {
+FormBrowser::FormBrowser(QWidget *p) : MainForm(p), browser(new Browser(this)) {
 	QVBoxLayout *box = new QVBoxLayout(this);
 	box->addWidget(browser);
 	setLayout(box);

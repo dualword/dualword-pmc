@@ -32,16 +32,13 @@
      <x>0</x>
      <y>0</y>
      <width>613</width>
-     <height>29</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionUpdateIndex"/>
-    <addaction name="actionStartIndexing"/>
-    <addaction name="actionStopIndexing"/>
     <addaction name="separator"/>
     <addaction name="actionClearHistory"/>
     <addaction name="separator"/>

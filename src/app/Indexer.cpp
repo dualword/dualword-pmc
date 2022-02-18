@@ -32,6 +32,15 @@ void Indexer::run(){
 		db.open();
 		while(!stop){
 			QScopedPointer<Doc> doc(new Doc());
+			if (!db.getNextDelete(*doc.get())) break;
+			emit newMsg("Deleting " + doc->getPmcid()) ;
+			QObject::connect(doc.get(), SIGNAL(newDoc()), mainWin->getTab(), SLOT(indexChange()), Qt::QueuedConnection);
+			pmcApp->index()->deleteDoc(doc->getPmcid());
+			db.deleteDoc(doc->getPmcid());
+			doc->emitNewDoc();
+		}
+		while(!stop){
+			QScopedPointer<Doc> doc(new Doc());
 			if (!db.getNextDoc(*doc.get())) break;
 			emit newMsg("Indexing " + doc->getPmcid());
 			QObject::connect(doc.get(), SIGNAL(newDoc()), mainWin->getTab(), SLOT(indexChange()), Qt::QueuedConnection);
