@@ -40,7 +40,6 @@
      <string>File</string>
     </property>
     <addaction name="separator"/>
-    <addaction name="actionClearHistory"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -52,7 +51,18 @@
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionReindex"/>
+    <addaction name="actionStartIndexing"/>
+    <addaction name="actionStopIndexing"/>
+    <addaction name="separator"/>
+    <addaction name="actionClearHistory"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -66,9 +76,12 @@
     <string>About</string>
    </property>
   </action>
-  <action name="actionUpdateIndex">
+  <action name="actionReindex">
    <property name="text">
-    <string>Update Index</string>
+    <string>Reindex All</string>
+   </property>
+   <property name="toolTip">
+    <string>Reindex All</string>
    </property>
   </action>
   <action name="actionClearHistory">

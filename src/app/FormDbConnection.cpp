@@ -41,11 +41,14 @@ FormDbConnection* FormDbConnection::open(){
 	execSql("PRAGMA journal_mode = MEMORY");
 	execSql("PRAGMA temp_store = MEMORY");
 	execSql("PRAGMA foreign_keys = ON");
-	execSql("PRAGMA auto_vacuum = 2");
+	execSql("PRAGMA mmap_size = 10000000000");
+	execSql("PRAGMA incremental_vacuum(10000000)");
 	return this;
 }
 
 void FormDbConnection::create(){
+	execSql("PRAGMA page_size = 32768");
+	execSql("PRAGMA auto_vacuum = 2");
 
 	execSql("CREATE TABLE IF NOT EXISTS doc (" \
 			"id INTEGER PRIMARY KEY AUTOINCREMENT," \
@@ -65,8 +68,6 @@ void FormDbConnection::create(){
 	execSql("CREATE VIEW IF NOT EXISTS v_pdf AS " \
 			"select pmcid,name,size,created,updated,data " \
 			"FROM doc d INNER JOIN pdf p ON d.id=p.id;");
-
-	execSql("PRAGMA incremental_vacuum(1000000)");
 }
 
 void FormDbConnection::execSql(const QString& sql){
@@ -228,6 +229,23 @@ void FormDbConnection::reindex(){
 		db.transaction();
 		QSqlQuery q(db);
 		q.prepare("UPDATE doc SET updated = NULL");
+		if(!q.exec()){
+		  throw dualword_exception(q.lastError().text().toStdString());
+		}
+		q.finish();
+		db.commit();
+	} catch (const dualword_exception& e) {
+		db.rollback();
+		//throw dualword_exception(e.what());
+	}
+}
+
+void FormDbConnection::reindex(const QString& id){
+	try {
+		db.transaction();
+		QSqlQuery q(db);
+		q.prepare("UPDATE doc SET updated = NULL WHERE pmcid = :id");
+		q.bindValue(":id", id);
 		if(!q.exec()){
 		  throw dualword_exception(q.lastError().text().toStdString());
 		}

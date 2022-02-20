@@ -88,7 +88,12 @@ void FormTable::contextMenuRequested(const QPoint& p){
 	QMenu menu(this);
 	menu.addAction(tr("Open"), this, SLOT(openDoc()));
 	menu.addAction(tr("Open in browser"), this, SLOT(openUrl()));
+	menu.addSeparator();
 	menu.addAction(tr("Save PDF"), this, SLOT(saveDoc()));
+	menu.addAction(tr("Reindex"), [&]{
+		db->reindex((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
+		pmcApp->startIndexer();});
+	menu.addSeparator();
 	menu.addAction(tr("Delete"), this, SLOT(deleteDoc()));
 	menu.exec(QCursor::pos());
 }
@@ -96,17 +101,15 @@ void FormTable::contextMenuRequested(const QPoint& p){
 void FormTable::deleteDoc(){
 	if(table->count() <= 0) return;
 	if (!mainWin->askYesNo(this, "Delete PDF?")) return;
-	QModelIndex i;
-	QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString();
+	QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString();
 	db->remove(id);
 	pmcApp->startIndexer();
 }
 
 void FormTable::openUrl(){
 	if(table->count() <= 0) return;
-	QModelIndex i;
 	mainWin->getTab()->createBrowser(QUrl("http://www.ncbi.nlm.nih.gov/pmc/" +
-			(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString()));
+			(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString()));
 }
 
 QString FormTable::getTitle() const{
@@ -165,8 +168,7 @@ void FormTable::saveDoc(){
 
 void FormTable::openDoc(){
 	if(table->count() <= 0) return;
-	QModelIndex i;
-	mainWin->getTab()->createViewer((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString());
+	mainWin->getTab()->createViewer((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
 }
 
 void FormTable::setSort(){

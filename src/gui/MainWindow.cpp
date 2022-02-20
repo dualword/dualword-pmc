@@ -64,16 +64,19 @@ void MainWindow::showInfo(){
 }
 
 void MainWindow::reindex() {
-	FormDbConnection db;
-	db.open()->reindex();
-	pmcApp->startIndexer();
+	if (askYesNo(this, "Do you want to reindex?")){
+		FormDbConnection db;
+		db.open()->reindex();
+		pmcApp->startIndexer();
+	}
 }
 
 void MainWindow::clearHistory(){
-	if (!mainWin->askYesNo(this, "Clear search history?")) return;
-	FormDbConnection db;
-	db.open()->clearHistory();
-	tab->indexChange();
+	if (askYesNo(this, "Clear search history?")){
+		FormDbConnection db;
+		db.open()->clearHistory();
+		tab->indexChange();
+	}
 }
 
 bool MainWindow::askYesNo(QWidget* p, const QString& str){

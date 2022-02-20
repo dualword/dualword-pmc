@@ -39,6 +39,7 @@ public:
 	void updateDoc(const QString&);
 	bool exists(const QString&);
 	void reindex();
+	void reindex(const QString&);
 	void remove(const QString&);
 	void clearHistory();
 	void saveSearch(const QString&);

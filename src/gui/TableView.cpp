@@ -32,6 +32,7 @@ TableView::TableView (QWidget *p) : QTableView(p), idxmodel(new IndexModel(this)
 	  setSelectionMode(QAbstractItemView::SingleSelection);
 	  setModel(idxmodel);
 	  connect(this,SIGNAL(doubleClicked(QModelIndex)), SLOT(doubleClicked(QModelIndex)));
+	  selectRow(0);
 }
 
 TableView::~TableView() {
