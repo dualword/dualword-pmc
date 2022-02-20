@@ -46,8 +46,6 @@ private slots:
 	void connectSlots();
 	void deleteDoc();
 	void saveDoc();
-	void openDoc();
-	void openUrl();
 	void doSearch();
 	void setSort();
 

@@ -42,8 +42,7 @@ void FormTable::createUi(){
 	view->init();
 
 	table = new TableView(this);
-	connect(table,SIGNAL(customContextMenuRequested(const QPoint&)),
-			SLOT(contextMenuRequested(const QPoint&)));
+	connect(table,SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(contextMenuRequested(const QPoint&)));
 
 	QHBoxLayout *bl = new QHBoxLayout();
 	search = new QLineEdit(this);
@@ -85,31 +84,31 @@ void FormTable::connectSlots(){
 }
 
 void FormTable::contextMenuRequested(const QPoint& p){
+	if(table->count() <= 0) return;
 	QMenu menu(this);
-	menu.addAction(tr("Open"), this, SLOT(openDoc()));
-	menu.addAction(tr("Open in browser"), this, SLOT(openUrl()));
+	menu.addAction(tr("Open"), [&]{
+		mainWin->getTab()->createViewer((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
+	});
+	menu.addAction(tr("Open in browser"), [&]{
+		mainWin->getTab()->createBrowser(QUrl("http://www.ncbi.nlm.nih.gov/pmc/" +
+				(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString()));	});
 	menu.addSeparator();
 	menu.addAction(tr("Save PDF"), this, SLOT(saveDoc()));
 	menu.addAction(tr("Reindex"), [&]{
 		db->reindex((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
-		pmcApp->startIndexer();});
+		pmcApp->startIndexer();
+	});
 	menu.addSeparator();
 	menu.addAction(tr("Delete"), this, SLOT(deleteDoc()));
 	menu.exec(QCursor::pos());
 }
 
 void FormTable::deleteDoc(){
-	if(table->count() <= 0) return;
-	if (!mainWin->askYesNo(this, "Delete PDF?")) return;
-	QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString();
-	db->remove(id);
-	pmcApp->startIndexer();
-}
-
-void FormTable::openUrl(){
-	if(table->count() <= 0) return;
-	mainWin->getTab()->createBrowser(QUrl("http://www.ncbi.nlm.nih.gov/pmc/" +
-			(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString()));
+	if (mainWin->askYesNo(this, "Delete PDF?")){
+		QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString();
+		db->remove(id);
+		pmcApp->startIndexer();
+	}
 }
 
 QString FormTable::getTitle() const{
@@ -142,7 +141,6 @@ void FormTable::refresh(){
 }
 
 void FormTable::saveDoc(){
-	if(table->count() <= 0) return;
 	QModelIndex i;
 	QString id = (table->model()->sibling(table->selectionModel()->currentIndex().row(),0,i)).data().toString();
 	Doc doc;
@@ -164,11 +162,6 @@ void FormTable::saveDoc(){
       	f.close();
         mainWin->statusBar()->showMessage("PDF saved in " + fname, 5000);
     }
-}
-
-void FormTable::openDoc(){
-	if(table->count() <= 0) return;
-	mainWin->getTab()->createViewer((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
 }
 
 void FormTable::setSort(){
