@@ -77,7 +77,7 @@ void Browser::contextMenuEvent(QContextMenuEvent *event){
 
 void Browser::loadFinished (bool ok){
 	if(url().toString().contains("ncbi.nlm.nih.gov/pmc/articles",Qt::CaseInsensitive)){
-		 page()->runJavaScript("document.querySelector('link[rel=\"alternate\"][type=\"application/pdf\"]').getAttribute('href')",
+			page()->runJavaScript("document.querySelector('a[class=\"int-view\"]').getAttribute('href')",
 				 [=](QVariant var){
 			 	 	 QString link = var.toString().trimmed();
 			 	 	 if( link.length() > 0)

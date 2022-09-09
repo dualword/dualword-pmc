@@ -60,6 +60,7 @@ public slots:
 	void start();
 	void startIndexer();
 	void stopIndexer();
+	void clearWebHistory();
 
 private:
 	void createDb();

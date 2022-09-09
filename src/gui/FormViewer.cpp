@@ -50,7 +50,8 @@ void FormViewer::createUi(){
 	slideZ->setToolTip("Zoom");
 	slideZ->setMinimum(50);
 	slideZ->setMaximum(200);
-	slideZ->setValue(120);
+	QSettings s;
+	slideZ->setValue(s.value("zoom", 120).toInt());
 	slideZ->setSingleStep(5);
 	slideP = new QSpinBox(this);
 	slideP->setToolTip("Page");
@@ -141,6 +142,10 @@ void FormViewer::loadDoc(const QString& i){
 		name = pdf->getName();
 		connect(pdf.data(), SIGNAL(newPage(const QImage*)), this, SLOT(setPage(const QImage*)));
 		connect(slideZ, SIGNAL(valueChanged(int)), pdf.data(), SLOT(setZoom(int)));
+		connect(slideZ, QOverload<int>::of(&QSpinBox::valueChanged), [=](int i) {
+			QSettings s;
+			s.setValue("zoom", i);
+		});
 		pdf->setZoom(slideZ->value());
 		slideP->setEnabled(true);
 		slideP->setMinimum(1);

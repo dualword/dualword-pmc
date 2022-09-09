@@ -55,11 +55,9 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionReindex"/>
-    <addaction name="actionStartIndexing"/>
-    <addaction name="actionStopIndexing"/>
     <addaction name="separator"/>
     <addaction name="actionClearHistory"/>
+    <addaction name="actionClearWebHistory"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -102,6 +100,11 @@
   <action name="actionStartIndexing">
    <property name="text">
     <string>Start Indexing</string>
+   </property>
+  </action>
+  <action name="actionClearWebHistory">
+   <property name="text">
+    <string>Clear web history</string>
    </property>
   </action>
  </widget>

@@ -31,17 +31,17 @@ const QString DualwordPmcApp::idxPath = appPath + "index";
 
 DualwordPmcApp::DualwordPmcApp(int &argc, char **argv) : QApplication(argc, argv), indexer(0), idx(0), lock() {
 	setApplicationName("Dualword-PMC");
+	setOrganizationName("dualword");
 	#ifdef _VER
 		QApplication::setApplicationVersion(_VER);
 	#endif
 	QApplication::setQuitOnLastWindowClosed(true);
+	clearWebHistory();
 	FPDF_InitLibrary();
 }
 
 DualwordPmcApp::~DualwordPmcApp() {
-	QWebEngineProfile::defaultProfile()->cookieStore()->deleteAllCookies();
-	QWebEngineProfile::defaultProfile()->clearHttpCache();
-	QWebEngineProfile::defaultProfile()->clearAllVisitedLinks();
+	clearWebHistory();
 	FPDF_DestroyLibrary();
 	if(indexer->isRunning()){
 		indexer->setStop(true);
@@ -96,3 +96,8 @@ void DualwordPmcApp::createIndex(){
 	idx->init();
 }
 
+void DualwordPmcApp::clearWebHistory(){
+	QWebEngineProfile::defaultProfile()->cookieStore()->deleteAllCookies();
+	QWebEngineProfile::defaultProfile()->clearHttpCache();
+	QWebEngineProfile::defaultProfile()->clearAllVisitedLinks();
+}
