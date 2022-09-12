@@ -61,6 +61,8 @@ public slots:
 	void startIndexer();
 	void stopIndexer();
 	void clearWebHistory();
+	void setValue(const QString&, const QVariant&);
+	QVariant value(const QString&, const QVariant &v = QVariant());
 
 private:
 	void createDb();

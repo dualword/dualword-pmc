@@ -34,7 +34,7 @@ void Doc::loadPage(int i){
 	if(p < 0 || p > pageCount) return;
 	pageNum = p;
 	FPDF_PAGE page = FPDF_LoadPage(doc, i);
-	QImage image(FPDF_GetPageWidth(page)*(zoom/res), FPDF_GetPageHeight(page)*(zoom/res), QImage::Format_RGBA8888);
+	QImage image(FPDF_GetPageWidth(page)*(zoom/res), FPDF_GetPageHeight(page)*(zoom/res), QImage::Format_ARGB32);
 	FPDF_BITMAP bitmap = FPDFBitmap_CreateEx(image.width(), image.height(), FPDFBitmap_BGRA,
 			image.scanLine(0), image.bytesPerLine());
     FPDF_RenderPageBitmap(bitmap, page, 0, 0, image.width(), image.height(), 0, 0);

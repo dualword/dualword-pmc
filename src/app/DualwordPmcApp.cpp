@@ -57,8 +57,7 @@ QString DualwordPmcApp::getHtml(const QString& f){
 	QFile file;
 	file.setFileName(f);
 	bool ok = file.open(QIODevice::ReadOnly);
-	QString html = QString(QLatin1String(file.readAll()));
-	return html;
+	return QString(QLatin1String(file.readAll()));
 }
 
 void DualwordPmcApp::start() {
@@ -100,4 +99,14 @@ void DualwordPmcApp::clearWebHistory(){
 	QWebEngineProfile::defaultProfile()->cookieStore()->deleteAllCookies();
 	QWebEngineProfile::defaultProfile()->clearHttpCache();
 	QWebEngineProfile::defaultProfile()->clearAllVisitedLinks();
+}
+
+void DualwordPmcApp::setValue(const QString &key, const QVariant& val){
+	QSettings s;
+	s.setValue(key, val);
+}
+
+QVariant DualwordPmcApp::value(const QString &key, const QVariant& val){
+	QSettings s;
+	return s.value(key, val);
 }

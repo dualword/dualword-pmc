@@ -36,7 +36,6 @@ private slots:
 	void setSlots();
 	void showAbout();
 	void showInfo();
-	void exit();
 	void reindex();
 	void clearHistory();
 

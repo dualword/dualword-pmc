@@ -50,8 +50,7 @@ void FormViewer::createUi(){
 	slideZ->setToolTip("Zoom");
 	slideZ->setMinimum(50);
 	slideZ->setMaximum(200);
-	QSettings s;
-	slideZ->setValue(s.value("zoom", 120).toInt());
+	slideZ->setValue(pmcApp->value("zoom", 120).toInt());
 	slideZ->setSingleStep(5);
 	slideP = new QSpinBox(this);
 	slideP->setToolTip("Page");
@@ -116,10 +115,9 @@ void FormViewer::contextMenuRequested(const QPoint& p){
 
 void FormViewer::copyDoc(){
 	if(pdf.isNull()) return;
-	QClipboard *clipboard = QApplication::clipboard();
 	QString s;
 	pdf->toText(s);
-	clipboard->setText(s);
+	QApplication::clipboard()->setText(s);
 }
 
 void FormViewer::setPage(const QImage* image){
@@ -143,8 +141,7 @@ void FormViewer::loadDoc(const QString& i){
 		connect(pdf.data(), SIGNAL(newPage(const QImage*)), this, SLOT(setPage(const QImage*)));
 		connect(slideZ, SIGNAL(valueChanged(int)), pdf.data(), SLOT(setZoom(int)));
 		connect(slideZ, QOverload<int>::of(&QSpinBox::valueChanged), [=](int i) {
-			QSettings s;
-			s.setValue("zoom", i);
+			pmcApp->setValue("zoom", i);
 		});
 		pdf->setZoom(slideZ->value());
 		slideP->setEnabled(true);

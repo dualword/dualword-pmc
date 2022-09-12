@@ -22,7 +22,6 @@
 
 TableView::TableView (QWidget *p) : QTableView(p), idxmodel(new IndexModel(this)), row(0) {
 	  resizeColumnsToContents();
-	  setAlternatingRowColors(true);
 	  verticalHeader()->hide();
 	  setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 	  setContextMenuPolicy(Qt::CustomContextMenu);

@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *p, Qt::WindowFlags f) : QMainWindow(p, f) {
 	setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
     setSlots();
+    restoreGeometry(pmcApp->value("geom").toByteArray());
 }
 
 MainWindow::~MainWindow() {
@@ -32,15 +33,8 @@ void MainWindow::init(){
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-	if(askYesNo(this,"Do you want to exit?")){
-	    event->accept();
-	}else{
-		event->ignore();
-	}
-}
-
-void MainWindow::exit() {
-	qApp->quit();
+	pmcApp->setValue("geom", saveGeometry());
+	event->accept();
 }
 
 void MainWindow::showAbout() {

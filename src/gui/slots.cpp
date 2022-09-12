@@ -18,7 +18,7 @@
 #include "app/global.h"
 
 void MainWindow::setSlots() {
-    QObject::connect(actionExit,SIGNAL(triggered()), SLOT(exit()));
+    QObject::connect(actionExit,SIGNAL(triggered()), SLOT(close()));
     QObject::connect(actionAbout,SIGNAL(triggered()), SLOT(showAbout()));
     QObject::connect(actionInfo,SIGNAL(triggered()), SLOT(showInfo()));
 //    QObject::connect(actionReindex,SIGNAL(triggered()), SLOT(reindex()));
