@@ -52,6 +52,7 @@ void FormViewer::createUi(){
 	slideZ->setMaximum(200);
 	slideZ->setValue(pmcApp->value("zoom", 120).toInt());
 	slideZ->setSingleStep(5);
+	slideZ->setAlignment(Qt::AlignHCenter);
 	slideP = new QSpinBox(this);
 	slideP->setToolTip("Page");
 	slideP->setMinimum(0);
@@ -59,6 +60,7 @@ void FormViewer::createUi(){
 	slideP->setValue(0);
 	slideP->setSingleStep(0);
 	slideP->setWrapping(true);
+	slideP->setAlignment(Qt::AlignHCenter);
 
 	QVBoxLayout *bl = new QVBoxLayout();
 	bl->addStretch(0);

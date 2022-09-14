@@ -31,6 +31,9 @@ TableView::TableView (QWidget *p) : QTableView(p), idxmodel(new IndexModel(this)
 	  setSelectionMode(QAbstractItemView::SingleSelection);
 	  setModel(idxmodel);
 	  connect(this,SIGNAL(doubleClicked(QModelIndex)), SLOT(doubleClicked(QModelIndex)));
+	  connect(this->horizontalHeader(),QOverload<int, Qt::SortOrder>::of(&QHeaderView::sortIndicatorChanged),[=]() {
+		  selectRow(std::min(row, idxmodel->count()-1));
+		});
 	  selectRow(0);
 }
 
@@ -75,4 +78,9 @@ void TableView::setSort(bool b){
 	setSortingEnabled(!b);
 	idxmodel->setSort(b);
 	selectRow(0);
+	if(!b){
+		connect(this->horizontalHeader(),QOverload<int, Qt::SortOrder>::of(&QHeaderView::sortIndicatorChanged),
+				[=](){selectRow(std::min(row, idxmodel->count()-1));
+		});
+	}
 }

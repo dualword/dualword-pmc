@@ -91,12 +91,16 @@ void FormTable::contextMenuRequested(const QPoint& p){
 		mainWin->getTab()->createViewer((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
 	});
 	menu.addAction(tr("Open in browser"), [&]{
-		mainWin->getTab()->createBrowser(QUrl("http://www.ncbi.nlm.nih.gov/pmc/articles/" +
+		mainWin->getTab()->createBrowser(QUrl("https://www.ncbi.nlm.nih.gov/pmc/articles/" +
 				(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString()));	});
 	menu.addSeparator();
 	menu.addAction(tr("Copy PMC id"), [&]{
-		QString id = table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex()).data().toString();
-		QApplication::clipboard()->setText(id);
+		QApplication::clipboard()->setText(
+				table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex()).data().toString());
+	});
+	menu.addAction(tr("Copy link"), [&]{
+		QApplication::clipboard()->setText("https://www.ncbi.nlm.nih.gov/pmc/articles/" +
+				(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
 	});
 	menu.addAction(tr("Save PDF"), this, SLOT(saveDoc()));
 //	menu.addAction(tr("Reindex"), [&]{
