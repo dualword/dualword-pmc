@@ -29,7 +29,7 @@ FormBrowser::FormBrowser(QWidget *p) : MainForm(p), browser(new Browser(this)) {
     QObject::connect(browser->page(), SIGNAL(linkHovered(const QString&)),
     		SIGNAL(statusBarMessage(const QString&)));
 
-    browser->setUrl(QUrl("http://www.ncbi.nlm.nih.gov/pmc/"));
+    browser->setUrl(QUrl("https://www.ncbi.nlm.nih.gov/pmc/"));
 
 }
 

@@ -47,9 +47,9 @@ void FormViewer::createUi(){
 	scroll->setBackgroundRole(QPalette::Dark);
 	scroll->setWidget(lbl);
 	slideZ = new QSpinBox(this);
-	slideZ->setToolTip("Zoom");
+	slideZ->setToolTip("Zoom: 50-550");
 	slideZ->setMinimum(50);
-	slideZ->setMaximum(200);
+	slideZ->setMaximum(550);
 	slideZ->setValue(pmcApp->value("zoom", 120).toInt());
 	slideZ->setSingleStep(5);
 	slideZ->setAlignment(Qt::AlignHCenter);
