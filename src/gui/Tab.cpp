@@ -19,6 +19,7 @@
 #include "Form.h"
 #include "FormBrowser.h"
 #include "FormTable.h"
+#include "FormSpeedReader.h"
 #include "FormViewer.h"
 #include "Browser.h"
 
@@ -48,14 +49,25 @@ int Tab::createBrowser(const QUrl& url){
 	auto f = new FormBrowser(this);
     QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
     f->getBrowser()->load(url);
-	return addTab(f,"Browser");
+	return addTab(f,f->getTitle());
 }
 
-void Tab::createViewer(const QString& i){
+void Tab::createViewer(const QString& id){
 	auto f = new FormViewer(this);
+    QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
 	f->init();
-	f->loadDoc(i);
-	addTab(f,f->getName());
+	f->loadDoc(id);
+	int i = addTab(f,f->getTitle());
+	setTabToolTip(i, f->getTitle());
+}
+
+void Tab::createSpeedReader(const QString& id){
+	auto f = new FormSpeedReader(this);
+    QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
+	f->init();
+	f->loadDoc(id);
+	int i = addTab(f,f->getTitle());
+	setTabToolTip(i, f->getTitle());
 }
 
 void Tab::closeTab(int i){

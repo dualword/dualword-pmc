@@ -36,7 +36,7 @@ public:
 	void createForm(){
 		auto f = new T(this);
 		QObject::connect(f,SIGNAL(titleChanged(const QString&)), SLOT(setToolTip(const QString&)));
-		addTab(f, " ");
+		addTab(f, f->getTitle());
 		f->init();
 		return;
 	};
@@ -44,6 +44,7 @@ public:
 public slots:
 	int createBrowser(const QUrl&);
 	void createViewer(const QString& i);
+	void createSpeedReader(const QString& i);
 	void closeTab(int);
 	void currentChanged (int index);
 	void setToolTip(const QString&);

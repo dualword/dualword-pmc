@@ -14,55 +14,40 @@
  *
 */
 
-#ifndef FORMVIEWER_H_
-#define FORMVIEWER_H_
+#ifndef GUI_FORMSPEEDREADER_H_
+#define GUI_FORMSPEEDREADER_H_
 
 #include "Form.h"
 
-class Doc;
-class FormDbConnection;
-
-class FormViewer : public Form {
+class FormSpeedReader : public MainForm<FormSpeedReader> {
   Q_OBJECT
 
 public:
-	FormViewer(QWidget *p = 0);
-	virtual ~FormViewer();
+	FormSpeedReader(QWidget *p = 0);
+	virtual ~FormSpeedReader();
 	virtual QString getTitle() const;
-	void init();
+	virtual void init();
 
 public slots:
-	void setPage(const QImage*);
-	void setImage(const QImage*);
-	void loadDoc(const QString& i);
 	void contextMenuRequested(const QPoint&);
-
-	bool loadImages() const {
-		return loadImage;
-	}
-
-	void setLoadImages(bool loadImage) {
-		this->loadImage = loadImage;
-		list->setVisible(loadImage);
-	}
+	void loadDoc(const QString& i);
 
 private slots:
 	void createUi();
 	void connectSlots();
-	void copyDoc();
-	void clear();
+	void start();
+	void update();
 
 private:
-	QPushButton *btnBack;
-	QLabel *lbl, *page;
-	QScrollArea *scroll;
-	QScopedPointer<Doc> pdf;
-	FormDbConnection *db;
-	QSpinBox *slideZ, *slideP;
+	QLabel* page;
+	QSpinBox *slideW, *slideS;
+	QPushButton *btnStart;
+	QFont font;
+	QTimer timer;
+	QString txt;
+	QStringList words;
+	long idx;
 	QString name;
-	QListWidget* list;
-	bool loadImage;
-
 };
 
-#endif /* FORMVIEWER_H_ */
+#endif /* GUI_FORMSPEEDREADER_H_ */

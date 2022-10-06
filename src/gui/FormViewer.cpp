@@ -17,7 +17,7 @@
 #include "FormViewer.h"
 #include "app/global.h"
 
-FormViewer::FormViewer(QWidget *p) : Form(p), pdf(0), loadImage(true) {
+FormViewer::FormViewer(QWidget *p) : Form(p), pdf(0), loadImage(true), name("Viewer") {
 	createUi();
 
 }
@@ -163,7 +163,7 @@ void FormViewer::loadDoc(const QString& i){
 }
 
 QString FormViewer::getTitle() const{
-	return "";
+	return name;
 }
 
 void FormViewer::clear(){

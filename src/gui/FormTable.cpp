@@ -34,7 +34,6 @@ void FormTable::init(){
 	db->open();
 	searchModel->setStringList(db->searchHistory());
 	table->setFocus();
-	emit titleChanged("Table");
 }
 
 void FormTable::createUi(){
@@ -93,6 +92,9 @@ void FormTable::contextMenuRequested(const QPoint& p){
 	menu.addAction(tr("Open in browser"), [&]{
 		mainWin->getTab()->createBrowser(QUrl("https://www.ncbi.nlm.nih.gov/pmc/articles/" +
 				(table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString()));	});
+	menu.addAction(tr("Speed Reader"), [&]{
+		mainWin->getTab()->createSpeedReader((table->model()->sibling(table->selectionModel()->currentIndex().row(),0,QModelIndex())).data().toString());
+	});
 	menu.addSeparator();
 	menu.addAction(tr("Copy PMC id"), [&]{
 		QApplication::clipboard()->setText(
