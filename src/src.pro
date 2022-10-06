@@ -27,7 +27,8 @@ HEADERS += \
 	gui/Browser.h \
 	gui/FormBrowser.h \
 	gui/FormTable.h \
-	gui/FormViewer.h
+	gui/FormViewer.h \
+	gui/FormSpeedReader.h
 			
 SOURCES += \
 	app/main.cpp \
@@ -46,7 +47,8 @@ SOURCES += \
 	gui/Browser.cpp \
 	gui/FormBrowser.cpp \
 	gui/FormTable.cpp \
-	gui/FormViewer.cpp
+	gui/FormViewer.cpp \
+	gui/FormSpeedReader.cpp
 
 FORMS += \
 	gui/MainWindow.ui
