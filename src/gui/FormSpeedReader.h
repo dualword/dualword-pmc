@@ -41,13 +41,15 @@ private slots:
 private:
 	QLabel* page;
 	QSpinBox *slideW, *slideS;
-	QPushButton *btnStart;
+	QPushButton *btnStart, *btnW, *btnS;
 	QFont font;
 	QTimer timer;
 	QString txt;
 	QStringList words;
 	long idx;
 	QString name;
+	QButtonGroup*  bg;
+	int min, max;
 };
 
 #endif /* GUI_FORMSPEEDREADER_H_ */

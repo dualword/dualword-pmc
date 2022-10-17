@@ -44,7 +44,7 @@ void FormSpeedReader::loadDoc(const QString& i){
 		pdf.open();
 		name = pdf.getName();
 		pdf.toText(txt);
-		words = txt.split(QRegExp("[\\s]+"));
+		btnW->click();
 	} catch (const dualword_exception& e) {
 		//
 	}
@@ -60,13 +60,8 @@ void FormSpeedReader::createUi(){
     font.setPointSize(pmcApp->value("fsize", 15).toInt());
     page->setFont(font);
     page->setStyleSheet("QLabel{background:gray;color:black;}");
-
+    page->setWordWrap(true);
 	slideW = new QSpinBox(this);
-	slideW->setToolTip("Speed (words per minute): 100-1000");
-	slideW->setMinimum(100);
-	slideW->setMaximum(1000);
-	slideW->setValue(pmcApp->value("wpm", 500).toInt());
-	slideW->setSingleStep(1);
 	slideW->setAlignment(Qt::AlignHCenter);
 	slideS = new QSpinBox(this);
 	slideS->setToolTip("Font size:15-100");
@@ -77,10 +72,46 @@ void FormSpeedReader::createUi(){
 	slideS->setAlignment(Qt::AlignHCenter);
 	btnStart = new QPushButton("Start", this);
 
+	btnW = new QPushButton(this);
+	btnW->setCheckable(true);
+	btnW->setText("W");
+	btnW->setToolTip("by Word");
+	btnW->setChecked(true);
+	btnS = new QPushButton(this);
+	btnS->setCheckable(true);
+	btnS->setText("S");
+	btnS->setToolTip("by Sentence");
+	bg = new QButtonGroup(this);
+	bg->setExclusive(true);
+	bg->addButton(btnW,0);
+	bg->addButton(btnS,1);
+	connect(bg, QOverload<int>::of(&QButtonGroup::buttonClicked), [=](int i){
+		timer.stop();
+		idx = 0;
+		btnStart->setText("Start");
+		page->setText("");
+		if(i == 0){
+			min = 100, max = 1000;
+			slideW->setSingleStep(100);
+			words = txt.replace(QRegularExpression("[\\n\\r]")," ").split(QRegExp("\\s+"));
+		}else{
+			min = 1000, max = 30000;
+			slideW->setSingleStep(1000);
+			words = txt.replace(QRegularExpression("[\\n\\r]")," ").split(QRegExp("\\.[\\s]+(?=[A-Z][a-z]+)"));
+		}
+		slideW->setMinimum(min);
+		slideW->setMaximum(max);
+		slideW->setToolTip("Pause: " + QString::number(min) + "-" + QString::number(max) + "(ms)"); //(words per minute)
+		slideW->setValue(pmcApp->value("wpm", 500).toInt());
+	});
+
 	QVBoxLayout *bl = new QVBoxLayout();
 	bl->addStretch(0);
 	bl->setSpacing(0);
 	bl->setContentsMargins(0,0,0,0);
+	bl->addWidget(btnW);
+	bl->addWidget(btnS);
+	bl->addStretch(1);
 	bl->addWidget(slideW);
 	bl->addWidget(slideS);
 	bl->addWidget(btnStart);
@@ -115,6 +146,7 @@ void FormSpeedReader::start(){
 			idx = 0;
 			btnStart->setText("Start");
 		}else{
+			page->setText(words.at(idx++));
 			timer.start(slideW->value());
 			btnStart->setText("Stop");
 		}

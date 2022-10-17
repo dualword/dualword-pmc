@@ -1,4 +1,4 @@
-Dualword-PMC - [PubMed Central](http://www.ncbi.nlm.nih.gov/pmc/) browser and reader.
+Dualword-PMC - [PubMed Central](https://www.ncbi.nlm.nih.gov/pmc/) browser and reader.
 
 Features:
  - site-specific web browser with access to PubMed Central website

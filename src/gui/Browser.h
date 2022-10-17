@@ -17,7 +17,7 @@
 #ifndef BROWSER_H_
 #define BROWSER_H_
 
-#include <QtWebEngineWidgets/QtWebEngineWidgets>
+#include <QtWebEngineWidgets>
 
 class WebPage : public QWebEnginePage{
 	Q_OBJECT
