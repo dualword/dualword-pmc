@@ -43,20 +43,18 @@ void Doc::loadPage(int i){
     emit newPage(&image);
 }
 
-
-void Doc::toText(QString& s){
-	QString tmp;
-	for(int j=0; j<pageCount; j++){
+void Doc::toText(QString& s) {
+	for(int j = 0; j < pageCount; j++) {
 		FPDF_PAGE page = FPDF_LoadPage(doc, j);
 		FPDF_TEXTPAGE tpage = FPDFText_LoadPage(page);
 		int len = FPDFText_CountChars(tpage);
-		ushort *buf = new ushort[++len];
+		ushort *buf = new ushort[len + 1];
 		FPDFText_GetText(tpage,0, len, buf);
-		tmp.append(QString::fromUtf16(buf, len));
+		s.append(QString::fromUtf16(buf, len));
         FPDF_ClosePage(page);
         FPDFText_ClosePage(tpage);
+        delete buf;
 	}
-	s = tmp;
 }
 
 void Doc::getImages(){
