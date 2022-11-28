@@ -108,7 +108,7 @@ private:
 	QString name;
 	QString pmcid;
 	QByteArray data;
-	qint64 created=0;
+	qint64 created = 0;
 
 };
 

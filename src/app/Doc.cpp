@@ -43,17 +43,16 @@ void Doc::loadPage(int i){
     emit newPage(&image);
 }
 
-void Doc::toText(QString& s) {
-	for(int j = 0; j < pageCount; j++) {
+void Doc::toText(QString& text){
+	for (int j = 0; j < pageCount; j++) {
 		FPDF_PAGE page = FPDF_LoadPage(doc, j);
 		FPDF_TEXTPAGE tpage = FPDFText_LoadPage(page);
 		int len = FPDFText_CountChars(tpage);
-		ushort *buf = new ushort[len + 1];
+		ushort buf[len + 1];
 		FPDFText_GetText(tpage,0, len, buf);
-		s.append(QString::fromUtf16(buf, len));
-        FPDF_ClosePage(page);
+		text.append(QString::fromUtf16(buf, len));
         FPDFText_ClosePage(tpage);
-        delete buf;
+        FPDF_ClosePage(page);
 	}
 }
 
@@ -85,7 +84,7 @@ void Doc::getImages(){
 }
 
 void Doc::rgba(QImage& img, uchar* pix, int w, int h){
-	for(int i = 0; i < h; ++i){
+	for (int i = 0; i < h; ++i){
 		for ( int j = 0; j < w; ++j, pix += 4 ) {
 			img.setPixel(j, i, qRgba(pix[0], pix[1], pix[2], pix[3]));
 		}
