@@ -9,7 +9,8 @@ Features:
  - speed reading
  
 License: GNU General Public License (Version 3)  
-Source code: http://github.com/dualword/dualword-pmc/  
+Source code: https://github.com/dualword/dualword-pmc  
+Files: https://sourceforge.net/projects/dualword-pmc 
 
 Third Party Software:
  - Qt License: LGPL v3
