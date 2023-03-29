@@ -17,9 +17,9 @@ Third Party Software:
  - PDFium License: BSD 3-clause
  - SQLite License: Public Domain
   
-<p float="middle">
-<img src="etc/screenshot/dualword-pmc_1.png" width="150" />
-<img src="etc/screenshot/dualword-pmc_2.png" width="150" />
-<img src="etc/screenshot/dualword-pmc_3.png" width="150" />
+<p align="middle">
+<img src="etc/screenshot/dualword-pmc_1.png" width="150"/>
+<img src="etc/screenshot/dualword-pmc_2.png" width="150"/>
+<img src="etc/screenshot/dualword-pmc_3.png" width="150"/>
 </p>
    
