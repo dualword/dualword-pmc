@@ -18,10 +18,8 @@ Third Party Software:
  - SQLite License: Public Domain
   
 <p float="middle">
-<img src="etc/screenshot/dualword-pmc_1.png" width="300" />
-<img src="etc/screenshot/dualword-pmc_2.png" width="300" />
-</p>
-<p float="middle">
-<img src="etc/screenshot/dualword-pmc_3.png" width="300" />
+<img src="etc/screenshot/dualword-pmc_1.png" width="150" />
+<img src="etc/screenshot/dualword-pmc_2.png" width="150" />
+<img src="etc/screenshot/dualword-pmc_3.png" width="150" />
 </p>
    
